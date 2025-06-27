@@ -19,7 +19,12 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = () => {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
+          localStorage.removeItem('user');
+        }
       }
       setLoading(false);
     };

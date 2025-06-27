@@ -25,7 +25,7 @@ export const ProjectProvider = ({ children }) => {
 
   const loadProjects = async () => {
     setLoading(true);
-    // Simulate API call
+    // Simulate API call with mock data
     const mockProjects = [
       {
         id: '1',
@@ -50,6 +50,7 @@ export const ProjectProvider = ({ children }) => {
         focusQuestion: 'How can we improve our customer experience?'
       }
     ];
+    
     setProjects(mockProjects);
     setLoading(false);
   };
@@ -64,6 +65,7 @@ export const ProjectProvider = ({ children }) => {
       participantCount: 0,
       statementCount: 0
     };
+    
     setProjects([...projects, newProject]);
     return newProject;
   };
