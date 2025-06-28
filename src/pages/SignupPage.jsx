@@ -64,36 +64,47 @@ const SignupPage = () => {
     setLoading(true);
     setError('');
     setSuccess('');
-    setDebugInfo('Starting registration...');
+    setDebugInfo('🚀 Starting registration process...');
 
     try {
-      console.log('🚀 Attempting to register:', formData.email);
-      setDebugInfo('Connecting to Supabase...');
+      console.log('🎯 Form submission started for:', formData.email);
+      setDebugInfo('🔗 Connecting to Supabase...');
 
       const result = await signup(formData.email, formData.password, formData.name);
       
-      console.log('📋 Registration result:', result);
-      setDebugInfo('Registration request sent');
+      console.log('📋 Registration complete. Result:', {
+        hasUser: !!result.user,
+        hasError: !!result.error,
+        hasMessage: !!result.message
+      });
 
       if (result.error) {
+        console.error('❌ Registration failed:', result.error);
         setError(result.error);
-        setDebugInfo(`Error: ${result.error}`);
+        setDebugInfo(`❌ Error: ${result.error}`);
       } else if (result.message) {
         // Email verification required
+        console.log('📧 Email verification required');
         setSuccess(result.message);
-        setDebugInfo('Check your email for verification');
-      } else {
+        setDebugInfo('📬 Check your email for verification link');
+      } else if (result.user) {
         // Direct login (email confirmation disabled)
+        console.log('🎉 Registration successful, user logged in');
         setSuccess('Account created successfully!');
-        setDebugInfo('Redirecting to dashboard...');
+        setDebugInfo('✅ Account created! Redirecting...');
         setTimeout(() => {
           navigate('/dashboard');
-        }, 1000);
+        }, 1500);
+      } else {
+        // Unexpected state
+        console.warn('⚠️ Unexpected registration state:', result);
+        setError('Registration completed but with unexpected result. Please try signing in.');
+        setDebugInfo('⚠️ Unexpected result - try signing in');
       }
     } catch (err) {
-      console.error('❌ Registration failed:', err);
-      setError('Failed to create account. Please try again.');
-      setDebugInfo(`Failed: ${err.message}`);
+      console.error('💥 Registration process crashed:', err);
+      setError('Registration failed due to a system error. Please try again.');
+      setDebugInfo(`💥 System error: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -173,8 +184,8 @@ const SignupPage = () => {
         className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
       >
         <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
-          {/* Debug Info (remove in production) */}
-          {process.env.NODE_ENV === 'development' && debugInfo && (
+          {/* Debug Info */}
+          {debugInfo && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
               <div className="flex items-center">
                 <SafeIcon icon={FiAlertCircle} className="w-4 h-4 text-blue-600 mr-2" />
@@ -186,13 +197,19 @@ const SignupPage = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-                {error}
+                <div className="flex items-center">
+                  <SafeIcon icon={FiAlertCircle} className="w-4 h-4 mr-2" />
+                  <span className="text-sm">{error}</span>
+                </div>
               </div>
             )}
 
             {success && !success.includes('email') && (
               <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md">
-                {success}
+                <div className="flex items-center">
+                  <SafeIcon icon={FiCheckCircle} className="w-4 h-4 mr-2" />
+                  <span className="text-sm">{success}</span>
+                </div>
               </div>
             )}
 
