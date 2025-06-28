@@ -23,16 +23,13 @@ export const AuthProvider = ({ children }) => {
     // Listen for auth changes including email verification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth event:', event, session?.user?.email_confirmed_at);
+        console.log('Auth event:', event, session?.user?.email);
         
         if (session?.user) {
           setUser(session.user);
-          await loadUserProfile(session.user.id);
           
-          // Handle email verification
-          if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
-            console.log('User email verified successfully');
-          }
+          // Create or load user profile
+          await handleUserProfile(session.user, event);
         } else {
           setUser(null);
           setProfile(null);
@@ -49,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
-        await loadUserProfile(session.user.id);
+        await handleUserProfile(session.user, 'INITIAL_SESSION');
       }
     } catch (error) {
       console.error('Error getting initial session:', error);
@@ -58,44 +55,117 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loadUserProfile = async (userId) => {
+  const handleUserProfile = async (authUser, event) => {
     try {
-      const { data, error } = await supabase
+      console.log('Handling user profile for:', authUser.email, 'Event:', event);
+      
+      // First, try to load existing profile
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', authUser.id)
         .single();
 
-      if (error) {
-        console.error('Error loading user profile:', error);
+      if (existingProfile) {
+        console.log('Found existing profile:', existingProfile);
+        setProfile(existingProfile);
         return;
       }
 
-      setProfile(data);
+      // If no profile exists and this is a new signup, create one
+      if (fetchError?.code === 'PGRST116' || event === 'SIGNED_UP') {
+        console.log('Creating new user profile...');
+        
+        const profileData = {
+          id: authUser.id,
+          email: authUser.email,
+          name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+          role: 'consultant'
+        };
+
+        const { data: newProfile, error: createError } = await supabase
+          .from('user_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          // If profile creation fails, still set the auth user
+          setProfile({
+            id: authUser.id,
+            email: authUser.email,
+            name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+            role: 'consultant'
+          });
+        } else {
+          console.log('Created new profile:', newProfile);
+          setProfile(newProfile);
+          
+          // Also create default subscription
+          await createDefaultSubscription(authUser.id);
+        }
+      }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error('Error handling user profile:', error);
+      // Fallback: create a profile object from auth user
+      setProfile({
+        id: authUser.id,
+        email: authUser.email,
+        name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+        role: 'consultant'
+      });
+    }
+  };
+
+  const createDefaultSubscription = async (userId) => {
+    try {
+      const { error } = await supabase
+        .from('subscriptions')
+        .insert([{
+          user_id: userId,
+          plan: 'starter',
+          status: 'active',
+          ai_credits: 10,
+          features: ['basic_analytics']
+        }]);
+
+      if (error) {
+        console.error('Error creating default subscription:', error);
+      } else {
+        console.log('Created default subscription for user');
+      }
+    } catch (error) {
+      console.error('Error creating subscription:', error);
     }
   };
 
   const signUp = async (email, password, name) => {
     try {
+      console.log('Starting signup for:', email);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { name: name }
+          data: {
+            name: name
+          }
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Signup error:', error);
+        throw error;
+      }
+
+      console.log('Signup successful:', data);
 
       // Return success message for email verification flow
       return {
         user: data.user,
         error: null,
-        message: data.user && !data.session 
-          ? 'Please check your email for verification link' 
-          : null
+        message: data.user && !data.session ? 'Please check your email for verification link' : null
       };
     } catch (error) {
       console.error('Signup error:', error);
@@ -105,13 +175,19 @@ export const AuthProvider = ({ children }) => {
 
   const signIn = async (email, password) => {
     try {
+      console.log('Starting signin for:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
 
+      console.log('Login successful:', data.user?.email);
       return { user: data.user, error: null };
     } catch (error) {
       console.error('Login error:', error);
