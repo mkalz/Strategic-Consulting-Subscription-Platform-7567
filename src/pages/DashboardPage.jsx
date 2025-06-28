@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,19 +13,32 @@ import AIUsageDashboard from '../components/ai/AIUsageDashboard';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiPlus, FiSettings, FiTrendingUp, FiZap } = FiIcons;
+const { FiPlus, FiSettings, FiTrendingUp, FiZap, FiRefreshCw } = FiIcons;
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { projects, loading } = useProjects();
+  const { projects, loading, loadProjects } = useProjects();
   const { subscription } = useSubscription();
   const { hasAIAccess, aiCredits } = useAI();
   const { t } = useLanguage();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
 
+  // Force reload projects when user changes or component mounts
+  useEffect(() => {
+    if (user?.id) {
+      console.log('Dashboard mounted, loading projects for user:', user.id);
+      loadProjects();
+    }
+  }, [user?.id, loadProjects]);
+
   const activeProjects = projects.filter(p => p.status === 'active');
   const completedProjects = projects.filter(p => p.status === 'completed');
+
+  const handleRefreshProjects = () => {
+    console.log('Manually refreshing projects...');
+    loadProjects();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,26 +53,34 @@ const DashboardPage = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                {t('dashboard.welcomeBack')}, {user?.name}
+                Welcome back, {user?.name}
               </h1>
               <p className="text-gray-600 mt-1">
-                {t('dashboard.manageProjects')}
+                Manage your strategic consulting projects and insights
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex space-x-4">
+              <button
+                onClick={handleRefreshProjects}
+                disabled={loading}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                <SafeIcon icon={FiRefreshCw} className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
               <Link
                 to="/settings"
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
                 <SafeIcon icon={FiSettings} className="w-4 h-4 mr-2" />
-                {t('dashboard.settings')}
+                Settings
               </Link>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
                 <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
-                {t('dashboard.newProject')}
+                New Project
               </button>
             </div>
           </div>
@@ -85,18 +106,18 @@ const DashboardPage = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} {t('dashboard.plan')}
+                      {subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan
                     </h3>
                     <p className="text-gray-600">
                       {subscription.projectLimit === -1 
-                        ? t('dashboard.unlimitedProjects') 
-                        : t('dashboard.projectsUsed', { used: projects.length, total: subscription.projectLimit })
+                        ? 'Unlimited projects' 
+                        : `${projects.length}/${subscription.projectLimit} projects used`
                       }
                     </p>
                   </div>
                 </div>
                 <Link to="/pricing" className="text-primary-600 hover:text-primary-700 font-medium">
-                  {t('dashboard.managePlan')}
+                  Manage Plan
                 </Link>
               </div>
             </motion.div>
@@ -111,24 +132,17 @@ const DashboardPage = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
-                  hasAIAccess ? 'bg-purple-100' : 'bg-gray-100'
-                }`}>
-                  <SafeIcon icon={FiZap} className={`w-5 h-5 ${
-                    hasAIAccess ? 'text-purple-600' : 'text-gray-400'
-                  }`} />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${hasAIAccess ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                  <SafeIcon icon={FiZap} className={`w-5 h-5 ${hasAIAccess ? 'text-purple-600' : 'text-gray-400'}`} />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {t('dashboard.aiAssistant')}
+                    AI Assistant
                   </h3>
                   <p className="text-gray-600">
                     {hasAIAccess 
-                      ? (aiCredits === -1 
-                          ? t('dashboard.unlimitedCredits') 
-                          : t('dashboard.creditsRemaining', { credits: aiCredits })
-                        )
-                      : t('dashboard.notEnabled')
+                      ? (aiCredits === -1 ? 'Unlimited credits' : `${aiCredits} credits remaining`)
+                      : 'Not enabled'
                     }
                   </p>
                 </div>
@@ -138,16 +152,25 @@ const DashboardPage = () => {
                   onClick={() => setActiveTab('ai')}
                   className="text-purple-600 hover:text-purple-700 font-medium"
                 >
-                  {t('dashboard.viewUsage')}
+                  View Usage
                 </button>
               ) : (
                 <Link to="/pricing" className="text-primary-600 hover:text-primary-700 font-medium">
-                  {t('dashboard.enableAI')}
+                  Enable AI
                 </Link>
               )}
             </div>
           </motion.div>
         </div>
+
+        {/* Debug Info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              Debug: User ID: {user?.id} | Projects loaded: {projects.length} | Loading: {loading ? 'Yes' : 'No'}
+            </p>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="mb-8">
@@ -161,7 +184,7 @@ const DashboardPage = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('nav.projects')}
+                Projects
               </button>
               {hasAIAccess && (
                 <button
@@ -192,7 +215,7 @@ const DashboardPage = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {t('dashboard.activeProjects')} ({activeProjects.length})
+                  Active Projects ({activeProjects.length})
                 </h2>
               </div>
 
@@ -229,17 +252,17 @@ const DashboardPage = () => {
                     <SafeIcon icon={FiPlus} className="w-8 h-8 text-gray-400" />
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {t('dashboard.noActiveProjects')}
+                    No active projects yet
                   </h3>
                   <p className="text-gray-600 mb-6">
-                    {t('dashboard.noActiveProjectsDesc')}
+                    Create your first Group Concept Mapping project to get started.
                   </p>
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
                     className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
                   >
                     <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
-                    {t('dashboard.createProject')}
+                    Create Project
                   </button>
                 </div>
               )}
@@ -253,7 +276,7 @@ const DashboardPage = () => {
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  {t('dashboard.completedProjects')} ({completedProjects.length})
+                  Completed Projects ({completedProjects.length})
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {completedProjects.map((project, index) => (

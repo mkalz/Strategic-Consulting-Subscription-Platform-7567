@@ -20,12 +20,19 @@ export const AuthProvider = ({ children }) => {
     // Get initial session
     getInitialSession();
 
-    // Listen for auth changes
+    // Listen for auth changes including email verification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth event:', event, session?.user?.email_confirmed_at);
+        
         if (session?.user) {
           setUser(session.user);
           await loadUserProfile(session.user.id);
+          
+          // Handle email verification
+          if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
+            console.log('User email verified successfully');
+          }
         } else {
           setUser(null);
           setProfile(null);
@@ -84,7 +91,14 @@ export const AuthProvider = ({ children }) => {
 
       if (error) throw error;
 
-      return { user: data.user, error: null };
+      // Return success message for email verification flow
+      return { 
+        user: data.user, 
+        error: null,
+        message: data.user && !data.session 
+          ? 'Please check your email for verification link' 
+          : null
+      };
     } catch (error) {
       console.error('Signup error:', error);
       return { user: null, error: error.message };

@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiMail, FiLock, FiUser, FiEye, FiEyeOff } = FiIcons;
+const { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiCheckCircle } = FiIcons;
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -18,21 +18,19 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [success, setSuccess] = useState('');
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -47,14 +45,67 @@ const SignupPage = () => {
     }
 
     try {
-      await signup(formData.email, formData.password, formData.name);
-      navigate('/dashboard');
+      const result = await signup(formData.email, formData.password, formData.name);
+      
+      if (result.error) {
+        setError(result.error);
+      } else if (result.message) {
+        // Email verification required
+        setSuccess(result.message);
+      } else {
+        // Direct login (email confirmation disabled)
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError('Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  // Show success message if email verification is required
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="sm:mx-auto sm:w-full sm:max-w-md"
+        >
+          <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <SafeIcon icon={FiCheckCircle} className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Check Your Email
+            </h2>
+            <p className="text-gray-600 mb-6">
+              We've sent a verification link to <strong>{formData.email}</strong>.
+              Please check your email and click the link to verify your account.
+            </p>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-500">
+                Didn't receive the email? Check your spam folder or{' '}
+                <button 
+                  onClick={() => setSuccess('')}
+                  className="text-primary-600 hover:text-primary-500 font-medium"
+                >
+                  try again
+                </button>
+              </p>
+              <Link
+                to="/login"
+                className="block w-full bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors"
+              >
+                Back to Sign In
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -74,10 +125,7 @@ const SignupPage = () => {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <Link
-            to="/login"
-            className="font-medium text-primary-600 hover:text-primary-500"
-          >
+          <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
             sign in to your existing account
           </Link>
         </p>

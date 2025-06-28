@@ -8,7 +8,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'esbuild', // Changed from 'terser' to 'esbuild' for better compatibility
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -26,5 +26,8 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: true
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'react-icons']
   }
 })

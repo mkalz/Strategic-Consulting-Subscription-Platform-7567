@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useSubscription } from './SubscriptionContext';
-import { supabase } from '../lib/supabase';
 
 const AIContext = createContext();
 
@@ -27,90 +26,58 @@ export const AIProvider = ({ children }) => {
 
   const loadAIUsage = async () => {
     try {
-      const { data, error } = await supabase
-        .from('ai_usage')
-        .select(`
-          *,
-          project:projects(title)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
+      // Mock AI usage data for now
+      const mockUsage = [
+        {
+          id: 'usage_1',
+          user_id: user.id,
+          project_id: null,
+          projectTitle: 'Strategic Planning Initiative',
+          type: 'statement_generation',
+          creditsUsed: 2,
+          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          statementsGenerated: 8,
+          usage_type: 'statement_generation',
+          credits_used: 2,
+          created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          metadata: { statementsGenerated: 8 }
+        }
+      ];
 
-      if (error) throw error;
-
-      const formattedUsage = data.map(usage => ({
-        ...usage,
-        projectTitle: usage.project?.title || 'Unknown Project',
-        type: usage.usage_type,
-        creditsUsed: usage.credits_used,
-        timestamp: usage.created_at,
-        statementsGenerated: usage.metadata?.statementsGenerated,
-        clustersGenerated: usage.metadata?.clustersGenerated,
-        statementsEnhanced: usage.metadata?.statementsEnhanced
-      }));
-
-      setAiUsage(formattedUsage);
+      setAiUsage(mockUsage);
     } catch (error) {
       console.error('Error loading AI usage:', error);
-    }
-  };
-
-  const recordAIUsage = async (usageType, projectId, creditsUsed, metadata = {}) => {
-    try {
-      const { data, error } = await supabase
-        .from('ai_usage')
-        .insert([
-          {
-            user_id: user.id,
-            project_id: projectId,
-            usage_type: usageType,
-            credits_used: creditsUsed,
-            metadata
-          }
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Update subscription credits
-      if (subscription.ai_credits !== -1) {
-        const newCredits = Math.max(0, subscription.ai_credits - creditsUsed);
-        await supabase
-          .from('subscriptions')
-          .update({ ai_credits: newCredits })
-          .eq('user_id', user.id);
-      }
-
-      // Reload usage and subscription
-      loadAIUsage();
-    } catch (error) {
-      console.error('Error recording AI usage:', error);
+      setAiUsage([]);
     }
   };
 
   const generateAIStatements = async (focusQuestion, context, count = 10) => {
     setLoading(true);
     try {
-      if (subscription.ai_credits === 0) {
+      if (subscription?.ai_credits === 0) {
         throw new Error('No AI credits remaining');
       }
 
       const creditsRequired = Math.ceil(count / 4);
-      if (subscription.ai_credits !== -1 && subscription.ai_credits < creditsRequired) {
+      if (subscription?.ai_credits !== -1 && subscription?.ai_credits < creditsRequired) {
         throw new Error('Insufficient AI credits');
       }
 
-      // Mock AI generation for demo (replace with actual AI service)
+      // Mock AI generation for demo
       const statements = await mockAIGeneration(focusQuestion, context, count);
-
-      // Record usage
-      await recordAIUsage('statement_generation', null, creditsRequired, {
-        statementsGenerated: statements.length,
-        focusQuestion,
-        context
-      });
+      
+      // Record usage (mock)
+      const newUsage = {
+        id: `usage_${Date.now()}`,
+        user_id: user.id,
+        projectTitle: 'Current Project',
+        type: 'statement_generation',
+        creditsUsed: creditsRequired,
+        timestamp: new Date().toISOString(),
+        statementsGenerated: statements.length
+      };
+      
+      setAiUsage(prev => [newUsage, ...prev]);
 
       return statements;
     } catch (error) {
@@ -121,104 +88,11 @@ export const AIProvider = ({ children }) => {
     }
   };
 
-  const generateAIClusters = async (statements, settings) => {
-    setLoading(true);
-    try {
-      if (subscription.ai_credits === 0) {
-        throw new Error('No AI credits remaining');
-      }
-
-      const creditsRequired = Math.ceil(statements.length / 10);
-      if (subscription.ai_credits !== -1 && subscription.ai_credits < creditsRequired) {
-        throw new Error('Insufficient AI credits');
-      }
-
-      // Mock AI clustering for demo (replace with actual AI service)
-      const clusters = await mockAIClusterGeneration(statements, settings);
-
-      // Record usage
-      await recordAIUsage('clustering', null, creditsRequired, {
-        clustersGenerated: clusters.length,
-        statementCount: statements.length
-      });
-
-      return clusters;
-    } catch (error) {
-      console.error('AI clustering failed:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const enhanceStatement = async (statement, focusQuestion) => {
-    setLoading(true);
-    try {
-      if (subscription.ai_credits === 0) {
-        throw new Error('No AI credits remaining');
-      }
-
-      if (subscription.ai_credits !== -1 && subscription.ai_credits < 1) {
-        throw new Error('Insufficient AI credits');
-      }
-
-      // Mock AI enhancement for demo (replace with actual AI service)
-      const enhanced = await mockAIEnhancement(statement, focusQuestion);
-
-      // Record usage
-      await recordAIUsage('enhancement', null, 1, {
-        statementsEnhanced: 1,
-        originalLength: statement.length,
-        enhancedLength: enhanced.enhanced.length
-      });
-
-      return enhanced;
-    } catch (error) {
-      console.error('AI enhancement failed:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const purchaseAICredits = async (creditPackage) => {
-    try {
-      const packages = {
-        small: { credits: 25, price: 9.99 },
-        medium: { credits: 100, price: 29.99 },
-        large: { credits: 500, price: 99.99 }
-      };
-
-      const package_ = packages[creditPackage];
-      if (!package_) {
-        throw new Error('Invalid package');
-      }
-
-      // In a real app, this would integrate with Stripe or another payment processor
-      // For demo, we'll just add the credits
-      const currentCredits = subscription.ai_credits === -1 ? -1 : subscription.ai_credits;
-      const newCredits = currentCredits === -1 ? -1 : currentCredits + package_.credits;
-
-      await supabase
-        .from('subscriptions')
-        .update({ ai_credits: newCredits })
-        .eq('user_id', user.id);
-
-      return { success: true, credits: package_.credits };
-    } catch (error) {
-      console.error('Credit purchase failed:', error);
-      throw error;
-    }
-  };
-
   const value = {
     aiCredits: subscription?.ai_credits || 0,
     aiUsage,
     loading,
     generateAIStatements,
-    generateAIClusters,
-    enhanceStatement,
-    purchaseAICredits,
     hasAIAccess: subscription?.features?.includes('ai_module') || false
   };
 
@@ -229,21 +103,16 @@ export const AIProvider = ({ children }) => {
   );
 };
 
-// Mock AI functions (replace with actual AI service integration)
+// Mock AI generation function
 const mockAIGeneration = async (focusQuestion, context, count) => {
   await new Promise(resolve => setTimeout(resolve, 2000));
-  
+
   const templates = [
     "Implement {technology} to improve {area} capabilities",
     "Develop {strategy} approach for {target} enhancement",
     "Create {framework} system to streamline {process}",
     "Establish {methodology} for better {outcome}",
-    "Design {solution} to address {challenge}",
-    "Build {platform} that enables {capability}",
-    "Integrate {tool} to optimize {workflow}",
-    "Deploy {technology} for enhanced {performance}",
-    "Introduce {practice} to strengthen {aspect}",
-    "Launch {initiative} targeting {improvement}"
+    "Design {solution} to address {challenge}"
   ];
 
   const technologies = ["AI-powered", "cloud-based", "mobile-first", "data-driven", "automated"];
@@ -263,16 +132,7 @@ const mockAIGeneration = async (focusQuestion, context, count) => {
       .replace('{methodology}', 'agile methodology')
       .replace('{outcome}', 'business outcomes')
       .replace('{solution}', 'innovative solution')
-      .replace('{challenge}', 'current challenges')
-      .replace('{platform}', 'digital platform')
-      .replace('{capability}', 'new capabilities')
-      .replace('{tool}', 'advanced tools')
-      .replace('{workflow}', 'existing workflows')
-      .replace('{performance}', 'system performance')
-      .replace('{practice}', 'best practices')
-      .replace('{aspect}', 'organizational culture')
-      .replace('{initiative}', 'strategic initiative')
-      .replace('{improvement}', 'continuous improvement');
+      .replace('{challenge}', 'current challenges');
 
     statements.push({
       id: `ai_${Date.now()}_${i}`,
@@ -284,72 +144,4 @@ const mockAIGeneration = async (focusQuestion, context, count) => {
   }
 
   return statements;
-};
-
-const mockAIClusterGeneration = async (statements, settings) => {
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  const clusterTemplates = [
-    { name: 'Technology Infrastructure', keywords: ['technology', 'infrastructure', 'platform', 'system', 'data', 'cloud'] },
-    { name: 'Customer Experience', keywords: ['customer', 'experience', 'service', 'support', 'user', 'client'] },
-    { name: 'Organizational Process', keywords: ['process', 'workflow', 'collaboration', 'team', 'agile', 'methodology'] },
-    { name: 'Strategic Planning', keywords: ['strategy', 'planning', 'goal', 'objective', 'vision', 'mission'] }
-  ];
-
-  const colors = [
-    'bg-blue-100 border-blue-300 text-blue-900',
-    'bg-green-100 border-green-300 text-green-900',
-    'bg-purple-100 border-purple-300 text-purple-900',
-    'bg-red-100 border-red-300 text-red-900'
-  ];
-
-  const clusters = [];
-  const usedStatements = new Set();
-
-  clusterTemplates.forEach((template, index) => {
-    const matchingStatements = statements.filter(statement => {
-      if (usedStatements.has(statement.id)) return false;
-      const text = statement.text.toLowerCase();
-      return template.keywords.some(keyword => text.includes(keyword));
-    });
-
-    if (matchingStatements.length >= (settings.minClusterSize || 2)) {
-      matchingStatements.forEach(s => usedStatements.add(s.id));
-      clusters.push({
-        id: Date.now() + index,
-        name: template.name,
-        color: colors[index % colors.length],
-        statements: matchingStatements,
-        confidence: 0.75 + Math.random() * 0.25,
-        method: settings.clusteringMethod || 'semantic'
-      });
-    }
-  });
-
-  return clusters;
-};
-
-const mockAIEnhancement = async (statement, focusQuestion) => {
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  const enhancements = [
-    " with measurable KPIs and success metrics",
-    " while ensuring stakeholder alignment and buy-in",
-    " through iterative development and continuous feedback",
-    " leveraging industry best practices and proven methodologies",
-    " with consideration for budget constraints and resource allocation"
-  ];
-
-  const enhancement = enhancements[Math.floor(Math.random() * enhancements.length)];
-  
-  return {
-    original: statement,
-    enhanced: statement + enhancement,
-    confidence: 0.8 + Math.random() * 0.2,
-    suggestions: [
-      "Consider adding specific timelines",
-      "Include success metrics",
-      "Define stakeholder roles"
-    ]
-  };
 };

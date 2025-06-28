@@ -19,17 +19,11 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -37,11 +31,11 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
     const newErrors = {};
     
     if (!formData.title.trim()) {
-      newErrors.title = t('errors.requiredField');
+      newErrors.title = 'Project title is required';
     }
     
     if (!formData.focusQuestion.trim()) {
-      newErrors.focusQuestion = t('errors.requiredField');
+      newErrors.focusQuestion = 'Focus question is required';
     }
     
     setErrors(newErrors);
@@ -57,7 +51,8 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
 
     try {
       console.log('Creating project with data:', formData);
-      await createProject(formData);
+      const newProject = await createProject(formData);
+      console.log('Project created successfully:', newProject);
       
       // Reset form
       setFormData({
@@ -69,13 +64,9 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
       
       // Close modal
       onClose();
-      
-      console.log('Project creation completed successfully');
     } catch (error) {
       console.error('Error creating project:', error);
-      setErrors({
-        submit: error.message || t('errors.somethingWentWrong')
-      });
+      setErrors({ submit: error.message || 'Failed to create project. Please try again.' });
     }
   };
 
@@ -119,7 +110,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   <SafeIcon icon={FiFolder} className="w-5 h-5 text-primary-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {t('projects.createNewProject')}
+                  Create New Project
                 </h3>
               </div>
               <button
@@ -140,7 +131,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('projects.projectTitle')} *
+                  Project Title *
                 </label>
                 <input
                   type="text"
@@ -153,7 +144,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.title ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder={t('projects.enterProjectTitle')}
+                  placeholder="Enter project title"
                 />
                 {errors.title && (
                   <p className="mt-1 text-xs text-red-600">{errors.title}</p>
@@ -162,7 +153,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
 
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('projects.description')}
+                  Description
                 </label>
                 <textarea
                   name="description"
@@ -172,13 +163,13 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   onChange={handleChange}
                   disabled={loading}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder={t('projects.describeProject')}
+                  placeholder="Describe your project goals and context"
                 />
               </div>
 
               <div>
                 <label htmlFor="focusQuestion" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('projects.focusQuestion')} *
+                  Focus Question *
                 </label>
                 <textarea
                   name="focusQuestion"
@@ -191,13 +182,13 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.focusQuestion ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder={t('projects.enterFocusQuestion')}
+                  placeholder="What specific question will guide your concept mapping session?"
                 />
                 {errors.focusQuestion && (
                   <p className="mt-1 text-xs text-red-600">{errors.focusQuestion}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                  {t('projects.focusQuestionHelper')}
+                  This question will guide participants during brainstorming
                 </p>
               </div>
 
@@ -208,7 +199,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   disabled={loading}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t('common.cancel')}
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -218,10 +209,10 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   {loading ? (
                     <>
                       <SafeIcon icon={FiLoader} className="w-4 h-4 mr-2 animate-spin" />
-                      {t('projects.creatingProject')}
+                      Creating...
                     </>
                   ) : (
-                    t('projects.createNewProject')
+                    'Create Project'
                   )}
                 </button>
               </div>

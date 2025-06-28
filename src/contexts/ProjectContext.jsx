@@ -27,33 +27,39 @@ export const ProjectProvider = ({ children }) => {
     }
   }, [user]);
 
+  const formatProject = (project) => ({
+    ...project,
+    participantCount: project.participant_count || 1,
+    statementCount: project.statement_count || 0,
+    focusQuestion: project.focus_question,
+    createdAt: project.created_at,
+    updatedAt: project.updated_at
+  });
+
   const loadProjects = async () => {
+    if (!user?.id) return;
+    
     try {
       setLoading(true);
-      
+      console.log('Loading projects for user:', user.id);
+
       const { data, error } = await supabase
         .from('projects')
-        .select(`
-          *,
-          owner:user_profiles(name, email),
-          team:teams(name)
-        `)
+        .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading projects:', error);
+        throw error;
+      }
 
-      const formattedProjects = data.map(project => ({
-        ...project,
-        participantCount: project.participant_count,
-        statementCount: project.statement_count,
-        focusQuestion: project.focus_question,
-        createdAt: project.created_at,
-        updatedAt: project.updated_at
-      }));
-
+      console.log('Loaded projects:', data);
+      const formattedProjects = data?.map(formatProject) || [];
       setProjects(formattedProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
+      setProjects([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -61,45 +67,46 @@ export const ProjectProvider = ({ children }) => {
 
   const createProject = async (projectData) => {
     try {
-      if (!user?.id) throw new Error('User not authenticated');
-
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+      
       setLoading(true);
+      console.log('Creating project with data:', projectData);
+
+      const projectPayload = {
+        title: projectData.title.trim(),
+        description: projectData.description?.trim() || null,
+        focus_question: projectData.focusQuestion.trim(),
+        owner_id: user.id,
+        status: 'active',
+        phase: 'brainstorming',
+        participant_count: 1,
+        statement_count: 0
+      };
 
       const { data, error } = await supabase
         .from('projects')
-        .insert([
-          {
-            title: projectData.title.trim(),
-            description: projectData.description?.trim() || null,
-            focus_question: projectData.focusQuestion.trim(),
-            owner_id: user.id,
-            status: 'active',
-            phase: 'brainstorming'
-          }
-        ])
-        .select(`
-          *,
-          owner:user_profiles(name, email),
-          team:teams(name)
-        `)
+        .insert([projectPayload])
+        .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(error.message || 'Failed to create project');
+      }
 
-      const formattedProject = {
-        ...data,
-        participantCount: data.participant_count,
-        statementCount: data.statement_count,
-        focusQuestion: data.focus_question,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
-      };
-
+      console.log('Project created successfully:', data);
+      
+      const formattedProject = formatProject(data);
+      
+      // Update local state immediately
       setProjects(prev => [formattedProject, ...prev]);
+      
       return formattedProject;
     } catch (error) {
       console.error('Error creating project:', error);
-      throw error;
+      throw new Error(error.message || 'Failed to create project');
     } finally {
       setLoading(false);
     }
@@ -107,6 +114,10 @@ export const ProjectProvider = ({ children }) => {
 
   const updateProject = async (projectId, updates) => {
     try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
       const dbUpdates = {};
       
       // Map frontend field names to database field names
@@ -122,29 +133,17 @@ export const ProjectProvider = ({ children }) => {
         .from('projects')
         .update(dbUpdates)
         .eq('id', projectId)
-        .select(`
-          *,
-          owner:user_profiles(name, email),
-          team:teams(name)
-        `)
+        .eq('owner_id', user.id)
+        .select()
         .single();
 
       if (error) throw error;
 
-      const formattedProject = {
-        ...data,
-        participantCount: data.participant_count,
-        statementCount: data.statement_count,
-        focusQuestion: data.focus_question,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
-      };
-
-      setProjects(prev =>
-        prev.map(project =>
-          project.id === projectId ? formattedProject : project
-        )
-      );
+      const formattedProject = formatProject(data);
+      
+      setProjects(prev => prev.map(project => 
+        project.id === projectId ? formattedProject : project
+      ));
 
       if (currentProject?.id === projectId) {
         setCurrentProject(formattedProject);
@@ -159,10 +158,15 @@ export const ProjectProvider = ({ children }) => {
 
   const deleteProject = async (projectId) => {
     try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
       const { error } = await supabase
         .from('projects')
         .delete()
-        .eq('id', projectId);
+        .eq('id', projectId)
+        .eq('owner_id', user.id);
 
       if (error) throw error;
 
@@ -188,25 +192,13 @@ export const ProjectProvider = ({ children }) => {
       // Otherwise fetch from database
       const { data, error } = await supabase
         .from('projects')
-        .select(`
-          *,
-          owner:user_profiles(name, email),
-          team:teams(name)
-        `)
+        .select('*')
         .eq('id', projectId)
         .single();
 
       if (error) throw error;
 
-      const formattedProject = {
-        ...data,
-        participantCount: data.participant_count,
-        statementCount: data.statement_count,
-        focusQuestion: data.focus_question,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
-      };
-
+      const formattedProject = formatProject(data);
       return formattedProject;
     } catch (error) {
       console.error('Error getting project:', error);
