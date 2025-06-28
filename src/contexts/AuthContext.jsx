@@ -83,17 +83,15 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         options: {
-          data: {
-            name: name
-          }
+          data: { name: name }
         }
       });
 
       if (error) throw error;
 
       // Return success message for email verification flow
-      return { 
-        user: data.user, 
+      return {
+        user: data.user,
         error: null,
         message: data.user && !data.session 
           ? 'Please check your email for verification link' 

@@ -25,7 +25,7 @@ export const ProjectProvider = ({ children }) => {
       setProjects([]);
       setCurrentProject(null);
     }
-  }, [user]);
+  }, [user?.id]);
 
   const formatProject = (project) => ({
     ...project,
@@ -59,7 +59,7 @@ export const ProjectProvider = ({ children }) => {
       setProjects(formattedProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
-      setProjects([]); // Set empty array on error
+      setProjects([]);
     } finally {
       setLoading(false);
     }

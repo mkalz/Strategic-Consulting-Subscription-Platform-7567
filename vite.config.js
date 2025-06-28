@@ -29,5 +29,8 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'react-icons']
+  },
+  define: {
+    global: 'globalThis',
   }
 })
