@@ -13,7 +13,7 @@ import AIUsageDashboard from '../components/ai/AIUsageDashboard';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiPlus, FiSettings, FiTrendingUp, FiZap, FiRefreshCw } = FiIcons;
+const { FiPlus, FiSettings, FiTrendingUp, FiZap, FiRefreshCw, FiAlertCircle } = FiIcons;
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -23,12 +23,17 @@ const DashboardPage = () => {
   const { t } = useLanguage();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
+  const [connectionStatus, setConnectionStatus] = useState('checking');
 
   // Force reload projects when user changes or component mounts
   useEffect(() => {
     if (user?.id) {
       console.log('Dashboard mounted, loading projects for user:', user.id);
-      loadProjects();
+      loadProjects().then(() => {
+        setConnectionStatus('connected');
+      }).catch(() => {
+        setConnectionStatus('error');
+      });
     }
   }, [user?.id, loadProjects]);
 
@@ -37,7 +42,12 @@ const DashboardPage = () => {
 
   const handleRefreshProjects = () => {
     console.log('Manually refreshing projects...');
-    loadProjects();
+    setConnectionStatus('checking');
+    loadProjects().then(() => {
+      setConnectionStatus('connected');
+    }).catch(() => {
+      setConnectionStatus('error');
+    });
   };
 
   const handleCreateProject = () => {
@@ -49,6 +59,18 @@ const DashboardPage = () => {
     console.log('Closing create project modal');
     setIsCreateModalOpen(false);
   };
+
+  // Show loading state while checking connection
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,6 +92,28 @@ const DashboardPage = () => {
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex space-x-4">
+              {/* Connection Status */}
+              <div className="flex items-center space-x-2">
+                {connectionStatus === 'checking' && (
+                  <div className="flex items-center text-yellow-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
+                    <span className="text-sm">Connecting...</span>
+                  </div>
+                )}
+                {connectionStatus === 'connected' && (
+                  <div className="flex items-center text-green-600">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span className="text-sm">Connected</span>
+                  </div>
+                )}
+                {connectionStatus === 'error' && (
+                  <div className="flex items-center text-red-600">
+                    <SafeIcon icon={FiAlertCircle} className="w-4 h-4 mr-2" />
+                    <span className="text-sm">Connection Error</span>
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={handleRefreshProjects}
                 disabled={loading}
@@ -121,12 +165,14 @@ const DashboardPage = () => {
                     <p className="text-gray-600">
                       {subscription.projectLimit === -1 
                         ? 'Unlimited projects' 
-                        : `${projects.length}/${subscription.projectLimit} projects used`
-                      }
+                        : `${projects.length}/${subscription.projectLimit} projects used`}
                     </p>
                   </div>
                 </div>
-                <Link to="/pricing" className="text-primary-600 hover:text-primary-700 font-medium">
+                <Link
+                  to="/pricing"
+                  className="text-primary-600 hover:text-primary-700 font-medium"
+                >
                   Manage Plan
                 </Link>
               </div>
@@ -154,10 +200,9 @@ const DashboardPage = () => {
                     AI Assistant
                   </h3>
                   <p className="text-gray-600">
-                    {hasAIAccess
+                    {hasAIAccess 
                       ? (aiCredits === -1 ? 'Unlimited credits' : `${aiCredits} credits remaining`)
-                      : 'Not enabled'
-                    }
+                      : 'Not enabled'}
                   </p>
                 </div>
               </div>
@@ -169,7 +214,10 @@ const DashboardPage = () => {
                   View Usage
                 </button>
               ) : (
-                <Link to="/pricing" className="text-primary-600 hover:text-primary-700 font-medium">
+                <Link
+                  to="/pricing"
+                  className="text-primary-600 hover:text-primary-700 font-medium"
+                >
                   Enable AI
                 </Link>
               )}
@@ -181,8 +229,29 @@ const DashboardPage = () => {
         {process.env.NODE_ENV === 'development' && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
-              Debug: User ID: {user?.id} | Projects loaded: {projects.length} | Loading: {loading ? 'Yes' : 'No'}
+              Debug: User ID: {user?.id} | Projects loaded: {projects.length} | Loading: {loading ? 'Yes' : 'No'} | Status: {connectionStatus}
             </p>
+          </div>
+        )}
+
+        {/* Connection Error Alert */}
+        {connectionStatus === 'error' && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <SafeIcon icon={FiAlertCircle} className="w-5 h-5 text-red-600 mr-3" />
+              <div>
+                <h4 className="font-medium text-red-900">Connection Error</h4>
+                <p className="text-sm text-red-700">
+                  Unable to connect to the database. Please check your connection and try refreshing.
+                </p>
+              </div>
+              <button
+                onClick={handleRefreshProjects}
+                className="ml-auto px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md"
+              >
+                Retry
+              </button>
+            </div>
           </div>
         )}
 
@@ -321,9 +390,9 @@ const DashboardPage = () => {
       </div>
 
       {/* Create Project Modal */}
-      <CreateProjectModal 
-        isOpen={isCreateModalOpen} 
-        onClose={handleCloseModal} 
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseModal}
       />
     </div>
   );

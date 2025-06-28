@@ -137,11 +137,9 @@ export const ProjectProvider = ({ children }) => {
       if (error) throw error;
 
       const formattedProject = formatProject(data);
-      setProjects(prev => 
-        prev.map(project => 
-          project.id === projectId ? formattedProject : project
-        )
-      );
+      setProjects(prev => prev.map(project => 
+        project.id === projectId ? formattedProject : project
+      ));
 
       if (currentProject?.id === projectId) {
         setCurrentProject(formattedProject);
@@ -169,7 +167,7 @@ export const ProjectProvider = ({ children }) => {
       if (error) throw error;
 
       setProjects(prev => prev.filter(project => project.id !== projectId));
-      
+
       if (currentProject?.id === projectId) {
         setCurrentProject(null);
       }

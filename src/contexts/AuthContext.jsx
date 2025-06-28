@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
           userEmail: session?.user?.email,
           isConfirmed: !!session?.user?.email_confirmed_at
         });
-        
+
         if (session?.user) {
           setUser(session.user);
           await handleUserProfile(session.user, event);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       console.log('🧹 Cleaning up auth subscription')
       subscription?.unsubscribe();
-    }
+    };
   }, []);
 
   const getInitialSession = async () => {
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
-      
+
       if (session?.user) {
         console.log('✅ Found existing session for:', session.user.email)
         setUser(session.user);
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   const handleUserProfile = async (authUser, event) => {
     try {
       console.log('👤 Handling user profile for:', authUser.email, 'Event:', event);
-      
+
       // First, try to load existing profile
       const { data: existingProfile, error: fetchError } = await supabase
         .from('user_profiles')
@@ -119,7 +119,6 @@ export const AuthProvider = ({ children }) => {
         } else {
           console.log('✅ Created new profile:', newProfile.name);
           setProfile(newProfile);
-          
           // Also create default subscription
           await createDefaultSubscription(authUser.id);
         }
@@ -162,25 +161,28 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password, name) => {
     try {
       console.log('🚀 Starting signup process for:', email);
-      
+
       // Validate inputs
       if (!email || !password) {
         throw new Error('Email and password are required');
       }
-      
+
       if (password.length < 6) {
         throw new Error('Password must be at least 6 characters long');
       }
 
       // Test connection first
       console.log('🧪 Testing Supabase connection...');
-      const { data: testData, error: testError } = await supabase.from('user_profiles').select('count').limit(1);
-      
+      const { data: testData, error: testError } = await supabase
+        .from('user_profiles')
+        .select('count')
+        .limit(1);
+
       if (testError) {
         console.error('❌ Connection test failed:', testError);
         throw new Error('Database connection failed. Please try again.');
       }
-      
+
       console.log('✅ Connection test passed');
 
       // Attempt signup
@@ -249,12 +251,11 @@ export const AuthProvider = ({ children }) => {
           message: null
         };
       }
-
     } catch (error) {
       console.error('❌ Signup process failed:', error);
-      return { 
-        user: null, 
-        error: error.message || 'Registration failed. Please try again.' 
+      return {
+        user: null,
+        error: error.message || 'Registration failed. Please try again.'
       };
     }
   };

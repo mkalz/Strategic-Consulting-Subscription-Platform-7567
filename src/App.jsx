@@ -1,102 +1,65 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { LanguageProvider } from './contexts/LanguageContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { SubscriptionProvider } from './contexts/SubscriptionContext';
-import { ProjectProvider } from './contexts/ProjectContext';
-import { TeamProvider } from './contexts/TeamContext';
-import { AIProvider } from './contexts/AIContext';
-import { AdminProvider } from './contexts/AdminContext';
+
+// Layout
 import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
+import Sidebar from './components/layout/Sidebar';
+
+// Pages
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import DashboardPage from './pages/DashboardPage';
-import ProjectPage from './pages/ProjectPage';
-import PricingPage from './pages/PricingPage';
-import TeamsPage from './pages/TeamsPage';
-import ReportsPage from './pages/ReportsPage';
-import AdminPage from './pages/AdminPage';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import ComponentsPage from './pages/ComponentsPage';
+import AuthPage from './pages/AuthPage';
+import BillingPage from './pages/BillingPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import UserManagementPage from './pages/UserManagementPage';
+import SettingsPage from './pages/SettingsPage';
+
 import './App.css';
 
 function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <ProjectProvider>
-            <TeamProvider>
-              <AIProvider>
-                <AdminProvider>
-                  <Router>
-                    <div className="min-h-screen bg-gray-50">
-                      <Navbar />
-                      <motion.main
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="pt-16"
-                      >
-                        <Routes>
-                          <Route path="/" element={<HomePage />} />
-                          <Route path="/login" element={<LoginPage />} />
-                          <Route path="/signup" element={<SignupPage />} />
-                          <Route path="/pricing" element={<PricingPage />} />
-                          <Route
-                            path="/dashboard"
-                            element={
-                              <ProtectedRoute>
-                                <DashboardPage />
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/teams"
-                            element={
-                              <ProtectedRoute>
-                                <TeamsPage />
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/reports"
-                            element={
-                              <ProtectedRoute>
-                                <ReportsPage />
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/admin"
-                            element={
-                              <ProtectedRoute>
-                                <AdminPage />
-                              </ProtectedRoute>
-                            }
-                          />
-                          <Route
-                            path="/project/:id"
-                            element={
-                              <ProtectedRoute>
-                                <ProjectPage />
-                              </ProtectedRoute>
-                            }
-                          />
-                        </Routes>
-                      </motion.main>
-                      <Footer />
-                    </div>
-                  </Router>
-                </AdminProvider>
-              </AIProvider>
-            </TeamProvider>
-          </ProjectProvider>
-        </SubscriptionProvider>
-      </AuthProvider>
-    </LanguageProvider>
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex">
+          <Sidebar />
+          <motion.main
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 ml-64 p-8"
+          >
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/components" element={<ComponentsPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/billing" element={<BillingPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/users" element={<UserManagementPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
+          </motion.main>
+        </div>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 3000,
+              theme: {
+                primary: '#4aed88',
+              },
+            },
+          }}
+        />
+      </div>
+    </Router>
   );
 }
 
