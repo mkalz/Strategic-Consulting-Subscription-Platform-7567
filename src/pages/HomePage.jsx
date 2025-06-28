@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiZap, FiShield, FiUsers, FiBarChart3, FiLayers, FiCreditCard } from 'react-icons/fi';
+import { FiZap, FiShield, FiUsers, FiBarChart2, FiLayers, FiCreditCard } from 'react-icons/fi';
 
 const HomePage = () => {
   const features = [
@@ -15,7 +15,7 @@ const HomePage = () => {
       description: 'Stripe integration with subscription plans and payment processing.'
     },
     {
-      icon: FiBarChart3,
+      icon: FiBarChart2,
       title: 'Analytics Dashboard',
       description: 'Beautiful charts and metrics to track your SaaS performance.'
     },
@@ -53,12 +53,11 @@ const HomePage = () => {
         className="text-center"
       >
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-          SaaS Prebuilt
+          SaaS Prebuilt{' '}
           <span className="block text-blue-600">Components</span>
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-          Accelerate your SaaS development with our comprehensive library of pre-built components,
-          pages, and integrations. Build faster, ship sooner.
+          Accelerate your SaaS development with our comprehensive library of pre-built components, pages, and integrations. Build faster, ship sooner.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
@@ -118,7 +117,7 @@ const HomePage = () => {
       >
         <h2 className="text-3xl font-bold mb-4">Ready to Build Your SaaS?</h2>
         <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-          Start with our component library and ship your SaaS product faster than ever.
+          Start with our component library and ship your SaaS product faster than ever. 
           Everything you need is already built and ready to customize.
         </p>
         <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
