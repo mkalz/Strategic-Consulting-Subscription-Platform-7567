@@ -5,11 +5,12 @@ import { FiMenu, FiX, FiBell, FiSearch, FiUser, FiSettings, FiLogOut } from 'rea
 
 const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [notifications] = useState([
+
+  const notifications = [
     { id: 1, message: 'New user registered', time: '2 min ago', type: 'info' },
     { id: 2, message: 'Payment received', time: '5 min ago', type: 'success' },
     { id: 3, message: 'Server maintenance scheduled', time: '1 hour ago', type: 'warning' },
-  ]);
+  ];
 
   return (
     <nav className="bg-white border-b border-gray-200 fixed w-full z-50 top-0">

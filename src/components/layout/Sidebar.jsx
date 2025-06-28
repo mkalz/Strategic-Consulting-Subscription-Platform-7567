@@ -1,18 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  FiHome,
-  FiLayers,
-  FiLock,
-  FiCreditCard,
-  FiBarChart3,
-  FiUsers,
-  FiSettings,
-  FiZap,
-  FiShield,
-  FiMail
-} from 'react-icons/fi';
+import { FiHome, FiLayers, FiLock, FiCreditCard, FiBarChart2, FiUsers, FiSettings, FiZap, FiShield, FiMail } from 'react-icons/fi';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -22,7 +11,7 @@ const Sidebar = () => {
     { name: 'Components', href: '/components', icon: FiLayers },
     { name: 'Authentication', href: '/auth', icon: FiLock },
     { name: 'Billing & Plans', href: '/billing', icon: FiCreditCard },
-    { name: 'Analytics', href: '/analytics', icon: FiBarChart3 },
+    { name: 'Analytics', href: '/analytics', icon: FiBarChart2 },
     { name: 'User Management', href: '/users', icon: FiUsers },
     { name: 'Settings', href: '/settings', icon: FiSettings },
   ];

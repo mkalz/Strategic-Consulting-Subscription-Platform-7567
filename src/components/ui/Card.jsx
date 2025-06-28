@@ -2,14 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 
-const Card = ({
-  children,
-  className,
-  hover = false,
-  padding = 'md',
-  shadow = 'sm',
-  ...props
-}) => {
+const Card = ({ children, className, hover = false, padding = 'md', shadow = 'sm', ...props }) => {
   const paddingClasses = {
     none: '',
     sm: 'p-4',
@@ -27,7 +20,7 @@ const Card = ({
 
   return (
     <motion.div
-      whileHover={hover ? { y: -2, boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)' } : {}}
+      whileHover={hover ? { y: -2, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' } : {}}
       className={clsx(
         'bg-white rounded-lg border border-gray-200',
         paddingClasses[padding],
