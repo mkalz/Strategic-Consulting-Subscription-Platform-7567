@@ -40,6 +40,16 @@ const DashboardPage = () => {
     loadProjects();
   };
 
+  const handleCreateProject = () => {
+    console.log('Opening create project modal');
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    console.log('Closing create project modal');
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -76,7 +86,7 @@ const DashboardPage = () => {
                 Settings
               </Link>
               <button
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={handleCreateProject}
                 className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
                 <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
@@ -132,15 +142,19 @@ const DashboardPage = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${hasAIAccess ? 'bg-purple-100' : 'bg-gray-100'}`}>
-                  <SafeIcon icon={FiZap} className={`w-5 h-5 ${hasAIAccess ? 'text-purple-600' : 'text-gray-400'}`} />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
+                  hasAIAccess ? 'bg-purple-100' : 'bg-gray-100'
+                }`}>
+                  <SafeIcon icon={FiZap} className={`w-5 h-5 ${
+                    hasAIAccess ? 'text-purple-600' : 'text-gray-400'
+                  }`} />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
                     AI Assistant
                   </h3>
                   <p className="text-gray-600">
-                    {hasAIAccess 
+                    {hasAIAccess
                       ? (aiCredits === -1 ? 'Unlimited credits' : `${aiCredits} credits remaining`)
                       : 'Not enabled'
                     }
@@ -258,7 +272,7 @@ const DashboardPage = () => {
                     Create your first Group Concept Mapping project to get started.
                   </p>
                   <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={handleCreateProject}
                     className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
                   >
                     <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
@@ -307,9 +321,9 @@ const DashboardPage = () => {
       </div>
 
       {/* Create Project Modal */}
-      <CreateProjectModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+      <CreateProjectModal 
+        isOpen={isCreateModalOpen} 
+        onClose={handleCloseModal} 
       />
     </div>
   );

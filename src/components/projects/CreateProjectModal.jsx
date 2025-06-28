@@ -10,20 +10,28 @@ const { FiX, FiFolder, FiLoader } = FiIcons;
 const CreateProjectModal = ({ isOpen, onClose }) => {
   const { createProject, loading } = useProjects();
   const { t } = useLanguage();
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     focusQuestion: ''
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
     
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
   };
 
@@ -49,6 +57,9 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
       return;
     }
 
+    setIsSubmitting(true);
+    setErrors({});
+
     try {
       console.log('Creating project with data:', formData);
       const newProject = await createProject(formData);
@@ -66,12 +77,16 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Error creating project:', error);
-      setErrors({ submit: error.message || 'Failed to create project. Please try again.' });
+      setErrors({ 
+        submit: error.message || 'Failed to create project. Please try again.' 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    if (!loading) {
+    if (!isSubmitting) {
       setFormData({
         title: '',
         description: '',
@@ -115,7 +130,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
               </div>
               <button
                 onClick={handleClose}
-                disabled={loading}
+                disabled={isSubmitting}
                 className="text-gray-400 hover:text-gray-500 focus:outline-none disabled:opacity-50"
               >
                 <SafeIcon icon={FiX} className="w-5 h-5" />
@@ -140,7 +155,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   required
                   value={formData.title}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.title ? 'border-red-300' : 'border-gray-300'
                   }`}
@@ -161,7 +176,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   rows={3}
                   value={formData.description}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Describe your project goals and context"
                 />
@@ -178,7 +193,7 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                   required
                   value={formData.focusQuestion}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.focusQuestion ? 'border-red-300' : 'border-gray-300'
                   }`}
@@ -196,17 +211,17 @@ const CreateProjectModal = ({ isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={handleClose}
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? (
+                  {isSubmitting ? (
                     <>
                       <SafeIcon icon={FiLoader} className="w-4 h-4 mr-2 animate-spin" />
                       Creating...

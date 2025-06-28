@@ -38,7 +38,7 @@ export const ProjectProvider = ({ children }) => {
 
   const loadProjects = async () => {
     if (!user?.id) return;
-    
+
     try {
       setLoading(true);
       console.log('Loading projects for user:', user.id);
@@ -70,8 +70,7 @@ export const ProjectProvider = ({ children }) => {
       if (!user?.id) {
         throw new Error('User not authenticated');
       }
-      
-      setLoading(true);
+
       console.log('Creating project with data:', projectData);
 
       const projectPayload = {
@@ -85,6 +84,8 @@ export const ProjectProvider = ({ children }) => {
         statement_count: 0
       };
 
+      console.log('Sending to Supabase:', projectPayload);
+
       const { data, error } = await supabase
         .from('projects')
         .insert([projectPayload])
@@ -97,18 +98,15 @@ export const ProjectProvider = ({ children }) => {
       }
 
       console.log('Project created successfully:', data);
-      
       const formattedProject = formatProject(data);
-      
+
       // Update local state immediately
       setProjects(prev => [formattedProject, ...prev]);
-      
+
       return formattedProject;
     } catch (error) {
       console.error('Error creating project:', error);
       throw new Error(error.message || 'Failed to create project');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -119,7 +117,6 @@ export const ProjectProvider = ({ children }) => {
       }
 
       const dbUpdates = {};
-      
       // Map frontend field names to database field names
       if (updates.title !== undefined) dbUpdates.title = updates.title;
       if (updates.description !== undefined) dbUpdates.description = updates.description;
@@ -140,10 +137,11 @@ export const ProjectProvider = ({ children }) => {
       if (error) throw error;
 
       const formattedProject = formatProject(data);
-      
-      setProjects(prev => prev.map(project => 
-        project.id === projectId ? formattedProject : project
-      ));
+      setProjects(prev => 
+        prev.map(project => 
+          project.id === projectId ? formattedProject : project
+        )
+      );
 
       if (currentProject?.id === projectId) {
         setCurrentProject(formattedProject);
