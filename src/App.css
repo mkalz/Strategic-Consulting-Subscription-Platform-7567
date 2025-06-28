@@ -1,6 +1,6 @@
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,65 +8,39 @@
 
 .message {
   font-size: 1.1rem;
-  color: #ea580c;
-  font-family: 'Comic Sans MS', cursive;
+  color: #374151;
 }
 
-/* Mr. Rossi inspired animations */
-@keyframes happiness-float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(5deg); }
-}
-
-@keyframes joy-bounce {
-  0%, 20%, 53%, 80%, 100% { transform: translateY(0px); }
-  40%, 43% { transform: translateY(-10px); }
-  70% { transform: translateY(-5px); }
-}
-
-@keyframes whimsy-wiggle {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(5deg); }
-  50% { transform: rotate(0deg); }
-  75% { transform: rotate(-5deg); }
-  100% { transform: rotate(0deg); }
-}
-
-/* Custom scrollbar with Italian flair */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #fef3c7;
+  background: #f1f5f9;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   border-radius: 10px;
-  border: 2px solid #fef3c7;
+  border: 2px solid #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #d97706, #dc2626);
+  background: linear-gradient(135deg, #2563eb, #1e40af);
 }
 
-/* Animation utilities with Italian charm */
+/* Animation utilities */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px) rotate(-2deg); }
-  to { opacity: 1; transform: translateY(0px) rotate(0deg); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0px); }
 }
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(30px) scale(0.95); }
   to { opacity: 1; transform: translateY(0px) scale(1); }
-}
-
-@keyframes sparkle {
-  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1) rotate(180deg); }
 }
 
 .animate-fade-in {
@@ -75,22 +49,6 @@
 
 .animate-slide-up {
   animation: slideUp 0.4s ease-out;
-}
-
-.animate-happiness-float {
-  animation: happiness-float 3s ease-in-out infinite;
-}
-
-.animate-joy-bounce {
-  animation: joy-bounce 2s infinite;
-}
-
-.animate-whimsy-wiggle {
-  animation: whimsy-wiggle 2s ease-in-out infinite;
-}
-
-.animate-sparkle {
-  animation: sparkle 2s ease-in-out infinite;
 }
 
 /* Line clamp utilities */
@@ -108,39 +66,13 @@
   overflow: hidden;
 }
 
-/* Focus styles with warmth */
+/* Focus styles */
 .focus-visible:focus {
-  outline: 3px solid #f59e0b;
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
-  border-radius: 8px;
 }
 
-/* Custom button hover effects inspired by Mr. Rossi's charm */
-.btn-primary {
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-  transition: all 0.3s ease-in-out;
-  border-radius: 20px;
-  font-family: 'Comic Sans MS', cursive;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #d97706 0%, #dc2626 100%);
-  transform: translateY(-2px) rotate(1deg);
-  box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
-}
-
-/* Card hover effects with Italian flair */
-.card-hover {
-  transition: all 0.3s ease-in-out;
-  border-radius: 20px;
-}
-
-.card-hover:hover {
-  transform: translateY(-5px) rotate(1deg);
-  box-shadow: 0 15px 35px rgba(234, 88, 12, 0.2);
-}
-
-/* Loading spinner with happiness */
+/* Loading spinner */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -149,93 +81,36 @@
   animation: spin 1s linear infinite;
 }
 
-/* Gradient backgrounds inspired by Italian sunsets */
+/* Gradient backgrounds */
 .bg-gradient-primary {
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #dc2626 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
-.bg-gradient-secondary {
-  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%);
-}
-
-.bg-gradient-happiness {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #ea580c 50%, #dc2626 75%, #b91c1c 100%);
-}
-
-/* Form focus states with warmth */
+/* Form focus states */
 .form-input:focus {
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
-  transform: scale(1.02);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Phase progress indicators with Italian style */
-.phase-progress {
-  position: relative;
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease-in-out;
 }
 
-.phase-progress::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(135deg, #fed7aa, #fecaca);
-  z-index: 1;
-  border-radius: 2px;
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-.phase-step {
-  position: relative;
-  z-index: 2;
-  background: white;
-  border-radius: 50%;
-  border: 4px solid #f59e0b;
-}
-
-/* Drag and drop styles with playfulness */
+/* Drag and drop styles */
 .drag-over {
-  border-color: #f59e0b;
-  background-color: rgba(245, 158, 11, 0.1);
-  transform: scale(1.02) rotate(1deg);
-  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 .dragging {
   opacity: 0.7;
-  transform: rotate(5deg) scale(0.95);
-  box-shadow: 0 10px 30px rgba(234, 88, 12, 0.3);
-}
-
-/* Rating stars with golden glow */
-.rating-star {
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-}
-
-.rating-star:hover {
-  transform: scale(1.2) rotate(10deg);
-  filter: drop-shadow(0 0 8px #fbbf24);
-}
-
-.rating-star.filled {
-  color: #fbbf24;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-}
-
-.rating-star.empty {
-  color: #fed7aa;
-}
-
-/* Chart container with warm styling */
-.chart-container {
-  position: relative;
-  height: 400px;
-  width: 100%;
-  background: linear-gradient(135deg, #fef3c7 0%, #fff 100%);
-  border-radius: 20px;
-  border: 3px solid #fed7aa;
+  transform: scale(0.95);
 }
 
 /* Print styles */
@@ -247,11 +122,6 @@
   .print-break {
     page-break-before: always;
   }
-  
-  body {
-    font-family: 'Comic Sans MS', cursive;
-    background: white !important;
-  }
 }
 
 /* Responsive utilities */
@@ -262,11 +132,6 @@
   
   .mobile-hidden {
     display: none !important;
-  }
-  
-  .btn-primary {
-    font-size: 14px;
-    padding: 10px 20px;
   }
 }
 
@@ -301,33 +166,4 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Comic Sans MS fallbacks */
-.font-comic {
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
-}
-
-/* Italian-inspired decorative elements */
-.decorative-border {
-  border: 4px solid;
-  border-image: linear-gradient(45deg, #f59e0b, #ea580c, #dc2626, #f59e0b) 1;
-  border-radius: 15px;
-}
-
-/* Happiness meter styling */
-.happiness-meter {
-  background: linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #f59e0b 50%, #fbbf24 75%, #84cc16 100%);
-  height: 8px;
-  border-radius: 10px;
-  position: relative;
-  overflow: hidden;
-}
-
-.happiness-meter::after {
-  content: '😊';
-  position: absolute;
-  top: -20px;
-  right: 5px;
-  font-size: 20px;
 }

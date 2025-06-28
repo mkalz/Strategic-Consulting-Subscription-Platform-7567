@@ -40,37 +40,31 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 shadow-lg fixed w-full z-50 top-0 border-b-4 border-yellow-300">
+    <nav className="bg-white shadow-lg border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              {/* Mr. Rossi inspired logo */}
-              <div className="relative">
-                <div className="w-10 h-10 bg-yellow-400 rounded-full border-3 border-orange-600 flex items-center justify-center shadow-lg transform rotate-12">
-                  <span className="text-orange-800 font-bold text-lg transform -rotate-12">G</span>
-                </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full border border-red-600"></div>
+              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">GCM</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-2xl text-white drop-shadow-lg" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-                  giacomo.app
-                </span>
-                <span className="text-xs text-yellow-200 -mt-1 italic">Strategic Mapping Adventures</span>
+                <span className="font-bold text-xl text-gray-900">StrategyMap</span>
+                <span className="text-xs text-gray-500 -mt-1">Strategic Consulting Platform</span>
               </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   location.pathname === link.path
-                    ? 'bg-yellow-300 text-orange-800 shadow-lg border-2 border-orange-500'
-                    : 'text-white hover:bg-white hover:bg-opacity-20 hover:text-yellow-200'
+                    ? 'text-primary-600 bg-primary-50'
+                    : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
                 }`}
               >
                 <SafeIcon icon={link.icon} className="w-4 h-4" />
@@ -84,14 +78,14 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 border-2 border-white border-opacity-30"
+                  className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-orange-600">
-                    <span className="text-orange-800 font-bold text-xs">{user.name?.charAt(0)}</span>
+                  <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-medium text-sm">{user.name?.charAt(0)}</span>
                   </div>
-                  <span className="text-sm">{user.name}</span>
+                  <span>{user.name}</span>
                   {isAdmin && (
-                    <SafeIcon icon={FiShield} className="w-4 h-4 text-yellow-300" />
+                    <SafeIcon icon={FiShield} className="w-4 h-4 text-primary-600" />
                   )}
                 </button>
 
@@ -99,12 +93,11 @@ const Navbar = () => {
                   <motion.div
                     initial={{ opacity: 0, y: -10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl py-2 z-50 border-4 border-yellow-300"
-                    style={{ background: 'linear-gradient(135deg, #fff9c4 0%, #fff 50%, #fef3c7 100%)' }}
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
                   >
                     <Link
                       to="/dashboard"
-                      className="flex items-center px-4 py-3 text-sm text-orange-800 hover:bg-yellow-100 transition-colors rounded-xl mx-2"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <SafeIcon icon={FiSettings} className="w-4 h-4 mr-3" />
@@ -112,7 +105,7 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/teams"
-                      className="flex items-center px-4 py-3 text-sm text-orange-800 hover:bg-yellow-100 transition-colors rounded-xl mx-2"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <SafeIcon icon={FiUsers} className="w-4 h-4 mr-3" />
@@ -120,7 +113,7 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/reports"
-                      className="flex items-center px-4 py-3 text-sm text-orange-800 hover:bg-yellow-100 transition-colors rounded-xl mx-2"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <SafeIcon icon={FiFileText} className="w-4 h-4 mr-3" />
@@ -129,10 +122,10 @@ const Navbar = () => {
 
                     {isAdmin && (
                       <>
-                        <div className="border-t border-yellow-300 my-2 mx-4"></div>
+                        <div className="border-t border-gray-100 my-1"></div>
                         <Link
                           to="/admin"
-                          className="flex items-center px-4 py-3 text-sm text-red-700 hover:bg-red-50 transition-colors rounded-xl mx-2"
+                          className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <SafeIcon icon={FiShield} className="w-4 h-4 mr-3" />
@@ -141,10 +134,10 @@ const Navbar = () => {
                       </>
                     )}
 
-                    <div className="border-t border-yellow-300 my-2 mx-4"></div>
+                    <div className="border-t border-gray-100 my-1"></div>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-3 text-sm text-orange-800 hover:bg-yellow-100 transition-colors rounded-xl mx-2"
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <SafeIcon icon={FiLogOut} className="w-4 h-4 mr-3" />
                       {t('nav.signOut')}
@@ -156,13 +149,13 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
-                  className="text-white hover:text-yellow-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t('nav.signIn')}
                 </Link>
                 <Link
                   to="/signup"
-                  className="bg-yellow-400 hover:bg-yellow-300 text-orange-800 px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105 shadow-lg border-2 border-orange-500"
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t('nav.getStarted')}
                 </Link>
@@ -175,7 +168,7 @@ const Navbar = () => {
             <LanguageSwitcher showLabel={false} />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white hover:text-yellow-200 focus:outline-none bg-white bg-opacity-20 p-2 rounded-full"
+              className="text-gray-700 hover:text-primary-600 focus:outline-none"
             >
               <SafeIcon icon={isMenuOpen ? FiX : FiMenu} className="w-6 h-6" />
             </button>
@@ -188,17 +181,17 @@ const Navbar = () => {
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="md:hidden bg-gradient-to-b from-red-400 to-pink-500 border-t-4 border-yellow-300"
+          className="md:hidden bg-white border-t border-gray-200"
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+                className={`flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium ${
                   location.pathname === link.path
-                    ? 'bg-yellow-300 text-orange-800 shadow-lg'
-                    : 'text-white hover:bg-white hover:bg-opacity-20'
+                    ? 'text-primary-600 bg-primary-50'
+                    : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
                 }`}
                 onClick={handleMobileMenuClose}
               >
@@ -208,18 +201,15 @@ const Navbar = () => {
             ))}
 
             {user ? (
-              <div className="border-t border-yellow-300 pt-4 mt-4">
-                <div className="flex items-center px-4 py-3 bg-white bg-opacity-20 rounded-xl mb-2">
-                  <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-orange-600 mr-3">
-                    <span className="text-orange-800 font-bold text-sm">{user.name?.charAt(0)}</span>
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="flex items-center px-3 py-2 text-base font-medium text-gray-700">
+                  <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-white font-medium text-sm">{user.name?.charAt(0)}</span>
                   </div>
                   <div>
-                    <span className="text-base font-medium text-white">{user.name}</span>
+                    <span className="block">{user.name}</span>
                     {isAdmin && (
-                      <div className="flex items-center">
-                        <SafeIcon icon={FiShield} className="w-4 h-4 mr-1 text-yellow-300" />
-                        <span className="text-xs text-yellow-200">Admin</span>
-                      </div>
+                      <span className="text-xs text-primary-600">Admin</span>
                     )}
                   </div>
                 </div>
@@ -227,7 +217,7 @@ const Navbar = () => {
                 {isAdmin && (
                   <Link
                     to="/admin"
-                    className="flex items-center px-4 py-3 text-base font-medium text-red-200 hover:text-white hover:bg-red-600 hover:bg-opacity-20 rounded-xl"
+                    className="flex items-center px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
                     onClick={handleMobileMenuClose}
                   >
                     <SafeIcon icon={FiShield} className="w-5 h-5 mr-3" />
@@ -240,24 +230,24 @@ const Navbar = () => {
                     handleLogout();
                     handleMobileMenuClose();
                   }}
-                  className="flex items-center w-full px-4 py-3 text-base font-medium text-white hover:bg-white hover:bg-opacity-20 rounded-xl"
+                  className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
                 >
                   <SafeIcon icon={FiLogOut} className="w-5 h-5 mr-3" />
                   {t('nav.signOut')}
                 </button>
               </div>
             ) : (
-              <div className="border-t border-yellow-300 pt-4 space-y-1">
+              <div className="border-t border-gray-200 pt-4 space-y-1">
                 <Link
                   to="/login"
-                  className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white hover:bg-opacity-20"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
                   onClick={handleMobileMenuClose}
                 >
                   {t('nav.signIn')}
                 </Link>
                 <Link
                   to="/signup"
-                  className="block px-4 py-3 rounded-xl text-base font-medium bg-yellow-400 text-orange-800 hover:bg-yellow-300 shadow-lg"
+                  className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
                   onClick={handleMobileMenuClose}
                 >
                   {t('nav.getStarted')}
