@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAdmin } from '../../contexts/AdminContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiMenu, FiX, FiUser, FiLogOut, FiSettings } = FiIcons;
+const { FiMenu, FiX, FiUser, FiLogOut, FiSettings, FiUsers, FiFileText, FiShield } = FiIcons;
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { isAdmin } = useAdmin();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,10 +25,19 @@ const Navbar = () => {
     setIsProfileOpen(false);
   };
 
+  // Close mobile menu when clicking a link
+  const handleMobileMenuClose = () => {
+    setIsMenuOpen(false);
+  };
+
   const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/pricing', label: 'Pricing' },
-    ...(user ? [{ path: '/dashboard', label: 'Dashboard' }] : [])
+    { path: '/', label: t('nav.home') },
+    { path: '/pricing', label: t('nav.pricing') },
+    ...(user ? [
+      { path: '/dashboard', label: t('nav.dashboard') },
+      { path: '/teams', label: t('nav.teams') },
+      { path: '/reports', label: t('nav.reports') }
+    ] : [])
   ];
 
   return (
@@ -55,6 +69,9 @@ const Navbar = () => {
               </Link>
             ))}
 
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {user ? (
               <div className="relative">
                 <button
@@ -63,6 +80,9 @@ const Navbar = () => {
                 >
                   <SafeIcon icon={FiUser} className="w-5 h-5" />
                   <span className="text-sm font-medium">{user.name}</span>
+                  {isAdmin && (
+                    <SafeIcon icon={FiShield} className="w-4 h-4 text-red-500" />
+                  )}
                 </button>
 
                 {isProfileOpen && (
@@ -77,14 +97,44 @@ const Navbar = () => {
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <SafeIcon icon={FiSettings} className="w-4 h-4 mr-2" />
-                      Dashboard
+                      {t('nav.dashboard')}
                     </Link>
+                    <Link
+                      to="/teams"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      <SafeIcon icon={FiUsers} className="w-4 h-4 mr-2" />
+                      {t('nav.teams')}
+                    </Link>
+                    <Link
+                      to="/reports"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      <SafeIcon icon={FiFileText} className="w-4 h-4 mr-2" />
+                      {t('nav.reports')}
+                    </Link>
+                    {isAdmin && (
+                      <>
+                        <div className="border-t border-gray-200 my-1"></div>
+                        <Link
+                          to="/admin"
+                          className="flex items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          <SafeIcon icon={FiShield} className="w-4 h-4 mr-2" />
+                          {t('nav.adminPanel')}
+                        </Link>
+                      </>
+                    )}
+                    <div className="border-t border-gray-200 my-1"></div>
                     <button
                       onClick={handleLogout}
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <SafeIcon icon={FiLogOut} className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t('nav.signOut')}
                     </button>
                   </motion.div>
                 )}
@@ -95,20 +145,21 @@ const Navbar = () => {
                   to="/login"
                   className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Sign In
+                  {t('nav.signIn')}
                 </Link>
                 <Link
                   to="/signup"
                   className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               </div>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center space-x-2">
+            <LanguageSwitcher showLabel={false} />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700 hover:text-primary-600 focus:outline-none"
@@ -136,7 +187,7 @@ const Navbar = () => {
                     ? 'text-primary-600 bg-primary-50'
                     : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
                 }`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={handleMobileMenuClose}
               >
                 {link.label}
               </Link>
@@ -147,13 +198,29 @@ const Navbar = () => {
                 <div className="flex items-center px-3 py-2">
                   <SafeIcon icon={FiUser} className="w-5 h-5 mr-2 text-gray-400" />
                   <span className="text-base font-medium text-gray-700">{user.name}</span>
+                  {isAdmin && (
+                    <SafeIcon icon={FiShield} className="w-4 h-4 ml-2 text-red-500" />
+                  )}
                 </div>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center px-3 py-2 text-base font-medium text-red-700 hover:text-red-600 hover:bg-red-50"
+                    onClick={handleMobileMenuClose}
+                  >
+                    <SafeIcon icon={FiShield} className="w-5 h-5 mr-2" />
+                    {t('nav.adminPanel')}
+                  </Link>
+                )}
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    handleLogout();
+                    handleMobileMenuClose();
+                  }}
                   className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
                 >
                   <SafeIcon icon={FiLogOut} className="w-5 h-5 mr-2" />
-                  Sign Out
+                  {t('nav.signOut')}
                 </button>
               </div>
             ) : (
@@ -161,16 +228,16 @@ const Navbar = () => {
                 <Link
                   to="/login"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={handleMobileMenuClose}
                 >
-                  Sign In
+                  {t('nav.signIn')}
                 </Link>
                 <Link
                   to="/signup"
                   className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={handleMobileMenuClose}
                 >
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               </div>
             )}

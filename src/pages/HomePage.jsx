@@ -1,70 +1,68 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../contexts/LanguageContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
 const { FiArrowRight, FiUsers, FiTarget, FiBarChart3, FiLayers, FiZap, FiShield } = FiIcons;
 
 const HomePage = () => {
+  const { t } = useLanguage();
+
   const features = [
     {
       icon: FiUsers,
-      title: 'Collaborative Brainstorming',
-      description: 'Engage stakeholders in structured idea generation sessions with real-time collaboration.'
+      title: t('home.features.collaboration.title'),
+      description: t('home.features.collaboration.description')
     },
     {
       icon: FiLayers,
-      title: 'Concept Structuring',
-      description: 'Organize and categorize ideas using advanced clustering algorithms and visualization.'
+      title: t('home.features.structuring.title'),
+      description: t('home.features.structuring.description')
     },
     {
       icon: FiTarget,
-      title: 'Priority Rating',
-      description: 'Enable participants to rate concepts on importance and feasibility for strategic decision-making.'
+      title: t('home.features.rating.title'),
+      description: t('home.features.rating.description')
     },
     {
       icon: FiBarChart3,
-      title: 'Advanced Analytics',
-      description: 'Generate comprehensive reports with statistical analysis and actionable insights.'
+      title: t('home.features.analytics.title'),
+      description: t('home.features.analytics.description')
     },
     {
       icon: FiZap,
-      title: 'Real-time Updates',
-      description: 'See changes instantly as participants contribute ideas and provide ratings.'
+      title: t('home.features.realtime.title'),
+      description: t('home.features.realtime.description')
     },
     {
       icon: FiShield,
-      title: 'Enterprise Security',
-      description: 'Bank-level security with encrypted data transmission and secure cloud storage.'
+      title: t('home.features.security.title'),
+      description: t('home.features.security.description')
     }
   ];
 
   const steps = [
     {
       number: '01',
-      title: 'Define Focus Question',
-      description: 'Start by clearly defining the strategic question or challenge you want to address.'
+      title: t('gcm.phases.brainstorming'),
+      description: t('gcm.brainstorming.description')
     },
     {
       number: '02',
-      title: 'Brainstorm Ideas',
-      description: 'Invite stakeholders to contribute ideas and statements related to your focus question.'
+      title: t('gcm.phases.structuring'),
+      description: t('gcm.structuring.description')
     },
     {
       number: '03',
-      title: 'Structure Concepts',
-      description: 'Use our clustering tools to organize similar ideas into meaningful groups.'
+      title: t('gcm.phases.rating'),
+      description: t('gcm.rating.description')
     },
     {
       number: '04',
-      title: 'Rate & Prioritize',
-      description: 'Have participants rate concepts on importance and feasibility scales.'
-    },
-    {
-      number: '05',
-      title: 'Analyze Results',
-      description: 'Generate comprehensive reports with visual maps and statistical insights.'
+      title: t('gcm.phases.analysis'),
+      description: t('gcm.analysis.description')
     }
   ];
 
@@ -80,27 +78,25 @@ const HomePage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Strategic Consulting
-              <span className="text-primary-600 block">Made Visual</span>
+              {t('home.heroTitle')}
+              <span className="text-primary-600 block">{t('home.heroSubtitle')}</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Transform your strategic planning process with Group Concept Mapping. 
-              Engage stakeholders, visualize complex ideas, and make data-driven decisions 
-              with our professional consulting platform.
+              {t('home.heroDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/signup"
                 className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center"
               >
-                Start Free Trial
+                {t('home.startFreeTrial')}
                 <SafeIcon icon={FiArrowRight} className="ml-2 w-5 h-5" />
               </Link>
               <Link
                 to="/pricing"
                 className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
               >
-                View Pricing
+                {t('home.viewPricing')}
               </Link>
             </div>
           </motion.div>
@@ -117,11 +113,10 @@ const HomePage = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Powerful Features for Strategic Consulting
+              {t('home.featuresTitle')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Everything you need to conduct professional Group Concept Mapping sessions 
-              and generate actionable strategic insights.
+              {t('home.featuresDescription')}
             </p>
           </motion.div>
 
@@ -159,11 +154,10 @@ const HomePage = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              The GCM Process
+              {t('home.processTitle')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Follow our proven 5-step methodology to transform complex strategic 
-              challenges into clear, actionable insights.
+              {t('home.processDescription')}
             </p>
           </motion.div>
 
@@ -211,17 +205,16 @@ const HomePage = () => {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Transform Your Strategic Planning?
+              {t('home.ctaTitle')}
             </h2>
             <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
-              Join leading consultants and organizations who use StrategyMap to 
-              facilitate better strategic decisions.
+              {t('home.ctaDescription')}
             </p>
             <Link
               to="/signup"
               className="bg-white text-primary-600 hover:bg-gray-50 px-8 py-4 rounded-lg text-lg font-semibold transition-colors inline-flex items-center"
             >
-              Start Your Free Trial
+              {t('home.startFreeTrial')}
               <SafeIcon icon={FiArrowRight} className="ml-2 w-5 h-5" />
             </Link>
           </motion.div>

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 
 const ProjectContext = createContext();
 
@@ -18,78 +19,199 @@ export const ProjectProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       loadProjects();
+    } else {
+      setProjects([]);
+      setCurrentProject(null);
     }
   }, [user]);
 
   const loadProjects = async () => {
-    setLoading(true);
-    // Simulate API call with mock data
-    const mockProjects = [
-      {
-        id: '1',
-        title: 'Digital Transformation Strategy',
-        description: 'Mapping strategic priorities for digital transformation initiative',
-        status: 'active',
-        phase: 'rating',
-        createdAt: '2024-01-15T00:00:00Z',
-        participantCount: 12,
-        statementCount: 45,
-        focusQuestion: 'What are the key priorities for our digital transformation?'
-      },
-      {
-        id: '2',
-        title: 'Customer Experience Improvement',
-        description: 'Identifying opportunities to enhance customer experience',
-        status: 'completed',
-        phase: 'analysis',
-        createdAt: '2024-01-10T00:00:00Z',
-        participantCount: 8,
-        statementCount: 32,
-        focusQuestion: 'How can we improve our customer experience?'
-      }
-    ];
-    
-    setProjects(mockProjects);
-    setLoading(false);
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          owner:user_profiles(name, email),
+          team:teams(name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedProjects = data.map(project => ({
+        ...project,
+        participantCount: project.participant_count,
+        statementCount: project.statement_count,
+        focusQuestion: project.focus_question,
+        createdAt: project.created_at,
+        updatedAt: project.updated_at
+      }));
+
+      setProjects(formattedProjects);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createProject = async (projectData) => {
-    const newProject = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...projectData,
-      status: 'active',
-      phase: 'brainstorming',
-      createdAt: new Date().toISOString(),
-      participantCount: 0,
-      statementCount: 0
-    };
-    
-    setProjects([...projects, newProject]);
-    return newProject;
+    try {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([
+          {
+            title: projectData.title.trim(),
+            description: projectData.description?.trim() || null,
+            focus_question: projectData.focusQuestion.trim(),
+            owner_id: user.id,
+            status: 'active',
+            phase: 'brainstorming'
+          }
+        ])
+        .select(`
+          *,
+          owner:user_profiles(name, email),
+          team:teams(name)
+        `)
+        .single();
+
+      if (error) throw error;
+
+      const formattedProject = {
+        ...data,
+        participantCount: data.participant_count,
+        statementCount: data.statement_count,
+        focusQuestion: data.focus_question,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+
+      setProjects(prev => [formattedProject, ...prev]);
+      return formattedProject;
+    } catch (error) {
+      console.error('Error creating project:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateProject = async (projectId, updates) => {
-    const updatedProjects = projects.map(project =>
-      project.id === projectId ? { ...project, ...updates } : project
-    );
-    setProjects(updatedProjects);
-    
-    if (currentProject && currentProject.id === projectId) {
-      setCurrentProject({ ...currentProject, ...updates });
+    try {
+      const dbUpdates = {};
+      
+      // Map frontend field names to database field names
+      if (updates.title !== undefined) dbUpdates.title = updates.title;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.focusQuestion !== undefined) dbUpdates.focus_question = updates.focusQuestion;
+      if (updates.status !== undefined) dbUpdates.status = updates.status;
+      if (updates.phase !== undefined) dbUpdates.phase = updates.phase;
+      if (updates.participantCount !== undefined) dbUpdates.participant_count = updates.participantCount;
+      if (updates.statementCount !== undefined) dbUpdates.statement_count = updates.statementCount;
+
+      const { data, error } = await supabase
+        .from('projects')
+        .update(dbUpdates)
+        .eq('id', projectId)
+        .select(`
+          *,
+          owner:user_profiles(name, email),
+          team:teams(name)
+        `)
+        .single();
+
+      if (error) throw error;
+
+      const formattedProject = {
+        ...data,
+        participantCount: data.participant_count,
+        statementCount: data.statement_count,
+        focusQuestion: data.focus_question,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+
+      setProjects(prev =>
+        prev.map(project =>
+          project.id === projectId ? formattedProject : project
+        )
+      );
+
+      if (currentProject?.id === projectId) {
+        setCurrentProject(formattedProject);
+      }
+
+      return formattedProject;
+    } catch (error) {
+      console.error('Error updating project:', error);
+      throw error;
     }
   };
 
   const deleteProject = async (projectId) => {
-    setProjects(projects.filter(project => project.id !== projectId));
-    if (currentProject && currentProject.id === projectId) {
-      setCurrentProject(null);
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      setProjects(prev => prev.filter(project => project.id !== projectId));
+      
+      if (currentProject?.id === projectId) {
+        setCurrentProject(null);
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      throw error;
     }
   };
 
-  const getProject = (projectId) => {
-    return projects.find(project => project.id === projectId);
+  const getProject = async (projectId) => {
+    try {
+      // First check if we have it in memory
+      const existingProject = projects.find(p => p.id === projectId);
+      if (existingProject) {
+        return existingProject;
+      }
+
+      // Otherwise fetch from database
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          owner:user_profiles(name, email),
+          team:teams(name)
+        `)
+        .eq('id', projectId)
+        .single();
+
+      if (error) throw error;
+
+      const formattedProject = {
+        ...data,
+        participantCount: data.participant_count,
+        statementCount: data.statement_count,
+        focusQuestion: data.focus_question,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+
+      return formattedProject;
+    } catch (error) {
+      console.error('Error getting project:', error);
+      return null;
+    }
   };
 
   const value = {

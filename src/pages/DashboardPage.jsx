@@ -4,19 +4,25 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useProjects } from '../contexts/ProjectContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { useAI } from '../contexts/AIContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import CreateProjectModal from '../components/projects/CreateProjectModal';
 import ProjectCard from '../components/projects/ProjectCard';
 import DashboardStats from '../components/dashboard/DashboardStats';
+import AIUsageDashboard from '../components/ai/AIUsageDashboard';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiPlus, FiSettings, FiTrendingUp } = FiIcons;
+const { FiPlus, FiSettings, FiTrendingUp, FiZap } = FiIcons;
 
 const DashboardPage = () => {
   const { user } = useAuth();
   const { projects, loading } = useProjects();
   const { subscription } = useSubscription();
+  const { hasAIAccess, aiCredits } = useAI();
+  const { t } = useLanguage();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('projects');
 
   const activeProjects = projects.filter(p => p.status === 'active');
   const completedProjects = projects.filter(p => p.status === 'completed');
@@ -34,10 +40,10 @@ const DashboardPage = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, {user?.name}
+                {t('dashboard.welcomeBack')}, {user?.name}
               </h1>
               <p className="text-gray-600 mt-1">
-                Manage your strategic consulting projects and insights
+                {t('dashboard.manageProjects')}
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex space-x-4">
@@ -46,14 +52,14 @@ const DashboardPage = () => {
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
                 <SafeIcon icon={FiSettings} className="w-4 h-4 mr-2" />
-                Settings
+                {t('dashboard.settings')}
               </Link>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
                 <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
-                New Project
+                {t('dashboard.newProject')}
               </button>
             </div>
           </div>
@@ -62,123 +68,218 @@ const DashboardPage = () => {
         {/* Stats */}
         <DashboardStats />
 
-        {/* Subscription Status */}
-        {subscription && (
+        {/* Subscription & AI Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Subscription Status */}
+          {subscription && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="bg-white rounded-lg shadow-sm p-6"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-4">
+                    <SafeIcon icon={FiTrendingUp} className="w-5 h-5 text-primary-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} {t('dashboard.plan')}
+                    </h3>
+                    <p className="text-gray-600">
+                      {subscription.projectLimit === -1 
+                        ? t('dashboard.unlimitedProjects') 
+                        : t('dashboard.projectsUsed', { used: projects.length, total: subscription.projectLimit })
+                      }
+                    </p>
+                  </div>
+                </div>
+                <Link to="/pricing" className="text-primary-600 hover:text-primary-700 font-medium">
+                  {t('dashboard.managePlan')}
+                </Link>
+              </div>
+            </motion.div>
+          )}
+
+          {/* AI Status */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-lg shadow-sm p-6 mb-8"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-white rounded-lg shadow-sm p-6"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-4">
-                  <SafeIcon icon={FiTrendingUp} className="w-5 h-5 text-primary-600" />
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
+                  hasAIAccess ? 'bg-purple-100' : 'bg-gray-100'
+                }`}>
+                  <SafeIcon icon={FiZap} className={`w-5 h-5 ${
+                    hasAIAccess ? 'text-purple-600' : 'text-gray-400'
+                  }`} />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan
+                    {t('dashboard.aiAssistant')}
                   </h3>
                   <p className="text-gray-600">
-                    {subscription.projectLimit === -1 ? 'Unlimited' : `${projects.length}/${subscription.projectLimit}`} projects used
+                    {hasAIAccess 
+                      ? (aiCredits === -1 
+                          ? t('dashboard.unlimitedCredits') 
+                          : t('dashboard.creditsRemaining', { credits: aiCredits })
+                        )
+                      : t('dashboard.notEnabled')
+                    }
                   </p>
                 </div>
               </div>
-              <Link
-                to="/pricing"
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Manage Plan
-              </Link>
+              {hasAIAccess ? (
+                <button
+                  onClick={() => setActiveTab('ai')}
+                  className="text-purple-600 hover:text-purple-700 font-medium"
+                >
+                  {t('dashboard.viewUsage')}
+                </button>
+              ) : (
+                <Link to="/pricing" className="text-primary-600 hover:text-primary-700 font-medium">
+                  {t('dashboard.enableAI')}
+                </Link>
+              )}
             </div>
           </motion.div>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('projects')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'projects'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {t('nav.projects')}
+              </button>
+              {hasAIAccess && (
+                <button
+                  onClick={() => setActiveTab('ai')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+                    activeTab === 'ai'
+                      ? 'border-purple-500 text-purple-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <SafeIcon icon={FiZap} className="w-4 h-4 mr-1" />
+                  AI Usage
+                </button>
+              )}
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'projects' && (
+          <>
+            {/* Active Projects */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {t('dashboard.activeProjects')} ({activeProjects.length})
+                </h2>
+              </div>
+
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3 mb-4"></div>
+                      <div className="flex justify-between">
+                        <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : activeProjects.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {activeProjects.map((project, index) => (
+                    <motion.div
+                      key={project.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                    >
+                      <ProjectCard project={project} />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <SafeIcon icon={FiPlus} className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t('dashboard.noActiveProjects')}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {t('dashboard.noActiveProjectsDesc')}
+                  </p>
+                  <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
+                    {t('dashboard.createProject')}
+                  </button>
+                </div>
+              )}
+            </motion.section>
+
+            {/* Completed Projects */}
+            {completedProjects.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  {t('dashboard.completedProjects')} ({completedProjects.length})
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {completedProjects.map((project, index) => (
+                    <motion.div
+                      key={project.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                    >
+                      <ProjectCard project={project} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+          </>
         )}
 
-        {/* Active Projects */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Active Projects ({activeProjects.length})
-            </h2>
-          </div>
-
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3 mb-4"></div>
-                  <div className="flex justify-between">
-                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : activeProjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <ProjectCard project={project} />
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <SafeIcon icon={FiPlus} className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No active projects yet
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Create your first Group Concept Mapping project to get started.
-              </p>
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
-              >
-                <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
-                Create Project
-              </button>
-            </div>
-          )}
-        </motion.section>
-
-        {/* Completed Projects */}
-        {completedProjects.length > 0 && (
-          <motion.section
+        {activeTab === 'ai' && hasAIAccess && (
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Completed Projects ({completedProjects.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {completedProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <ProjectCard project={project} />
-                </motion.div>
-              ))}
-            </div>
-          </motion.section>
+            <AIUsageDashboard />
+          </motion.div>
         )}
       </div>
 

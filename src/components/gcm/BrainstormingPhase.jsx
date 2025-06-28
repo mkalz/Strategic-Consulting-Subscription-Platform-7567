@@ -1,16 +1,38 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useAI } from '../../contexts/AIContext';
+import AIBrainstormingPanel from '../ai/AIBrainstormingPanel';
 import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiPlus, FiLightbulb, FiUsers, FiArrowRight } = FiIcons;
+const { FiPlus, FiLightbulb, FiUsers, FiArrowRight, FiZap } = FiIcons;
 
 const BrainstormingPhase = ({ project }) => {
+  const { hasAIAccess } = useAI();
   const [statements, setStatements] = useState([
-    { id: 1, text: 'Implement cloud-based infrastructure for better scalability', author: 'John D.', timestamp: '2024-01-15T10:30:00Z' },
-    { id: 2, text: 'Develop mobile-first customer experience strategy', author: 'Sarah M.', timestamp: '2024-01-15T11:15:00Z' },
-    { id: 3, text: 'Create unified data analytics platform across departments', author: 'Mike R.', timestamp: '2024-01-15T14:20:00Z' }
+    {
+      id: 1,
+      text: 'Implement cloud-based infrastructure for better scalability',
+      author: 'John D.',
+      timestamp: '2024-01-15T10:30:00Z',
+      source: 'manual'
+    },
+    {
+      id: 2,
+      text: 'Develop mobile-first customer experience strategy',
+      author: 'Sarah M.',
+      timestamp: '2024-01-15T11:15:00Z',
+      source: 'manual'
+    },
+    {
+      id: 3,
+      text: 'Create unified data analytics platform across departments',
+      author: 'Mike R.',
+      timestamp: '2024-01-15T14:20:00Z',
+      source: 'manual'
+    }
   ]);
+
   const [newStatement, setNewStatement] = useState('');
   const [isAddingStatement, setIsAddingStatement] = useState(false);
 
@@ -21,7 +43,8 @@ const BrainstormingPhase = ({ project }) => {
         id: Date.now(),
         text: newStatement.trim(),
         author: 'You',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        source: 'manual'
       };
       setStatements([...statements, statement]);
       setNewStatement('');
@@ -29,10 +52,26 @@ const BrainstormingPhase = ({ project }) => {
     }
   };
 
+  const handleAIStatementsGenerated = (aiStatements) => {
+    const formattedStatements = aiStatements.map(aiStatement => ({
+      id: aiStatement.id,
+      text: aiStatement.text,
+      author: 'AI Assistant',
+      timestamp: aiStatement.timestamp,
+      source: 'ai_generated',
+      confidence: aiStatement.confidence
+    }));
+    
+    setStatements(prev => [...prev, ...formattedStatements]);
+  };
+
   const moveToStructuring = () => {
     // In a real app, this would update the project phase
     console.log('Moving to structuring phase');
   };
+
+  const manualStatements = statements.filter(s => s.source === 'manual');
+  const aiStatements = statements.filter(s => s.source === 'ai_generated');
 
   return (
     <div className="space-y-8">
@@ -51,8 +90,7 @@ const BrainstormingPhase = ({ project }) => {
               Brainstorming Phase
             </h2>
             <p className="text-blue-800 mb-4">
-              Generate ideas and statements related to the focus question. Encourage participants 
-              to think freely and contribute diverse perspectives.
+              Generate ideas and statements related to the focus question. Encourage participants to think freely and contribute diverse perspectives.
             </p>
             <div className="bg-white rounded-md p-4 border border-blue-200">
               <p className="font-medium text-blue-900 mb-1">Focus Question:</p>
@@ -62,11 +100,23 @@ const BrainstormingPhase = ({ project }) => {
         </div>
       </motion.div>
 
-      {/* Add Statement Section */}
+      {/* AI Brainstorming Panel */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+      >
+        <AIBrainstormingPanel 
+          project={project} 
+          onStatementsGenerated={handleAIStatementsGenerated}
+        />
+      </motion.div>
+
+      {/* Manual Statement Entry */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
         className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
       >
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -117,7 +167,7 @@ const BrainstormingPhase = ({ project }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.3 }}
         className="bg-white rounded-lg shadow-sm border border-gray-200"
       >
         <div className="px-6 py-4 border-b border-gray-200">
@@ -125,9 +175,17 @@ const BrainstormingPhase = ({ project }) => {
             <h3 className="text-lg font-semibold text-gray-900">
               Generated Statements ({statements.length})
             </h3>
-            <div className="flex items-center text-sm text-gray-500">
-              <SafeIcon icon={FiUsers} className="w-4 h-4 mr-1" />
-              <span>{project.participantCount} contributors</span>
+            <div className="flex items-center space-x-4 text-sm text-gray-500">
+              <div className="flex items-center">
+                <SafeIcon icon={FiUsers} className="w-4 h-4 mr-1" />
+                <span>{project.participantCount} contributors</span>
+              </div>
+              {hasAIAccess && aiStatements.length > 0 && (
+                <div className="flex items-center">
+                  <SafeIcon icon={FiZap} className="w-4 h-4 mr-1 text-purple-600" />
+                  <span className="text-purple-600">{aiStatements.length} AI-generated</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -144,10 +202,27 @@ const BrainstormingPhase = ({ project }) => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-gray-900 mb-2">{statement.text}</p>
-                  <div className="flex items-center text-sm text-gray-500">
+                  <div className="flex items-center text-sm text-gray-500 space-x-4">
                     <span>By {statement.author}</span>
-                    <span className="mx-2">•</span>
+                    <span>•</span>
                     <span>{new Date(statement.timestamp).toLocaleDateString()}</span>
+                    {statement.source === 'ai_generated' && (
+                      <>
+                        <span>•</span>
+                        <span className="flex items-center text-purple-600">
+                          <SafeIcon icon={FiZap} className="w-3 h-3 mr-1" />
+                          AI Generated
+                        </span>
+                        {statement.confidence && (
+                          <>
+                            <span>•</span>
+                            <span className="text-purple-600">
+                              {Math.round(statement.confidence * 100)}% confidence
+                            </span>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="ml-4 text-sm text-gray-400">
@@ -163,7 +238,7 @@ const BrainstormingPhase = ({ project }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.4 }}
         className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
       >
         <div className="flex items-center justify-between">

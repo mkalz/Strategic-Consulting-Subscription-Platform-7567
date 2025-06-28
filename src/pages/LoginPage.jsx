@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
@@ -13,11 +14,12 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  
   const { login } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-
+  
   const from = location.state?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e) => {
@@ -29,7 +31,7 @@ const LoginPage = () => {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError('Invalid email or password');
+      setError(t('errors.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -49,15 +51,12 @@ const LoginPage = () => {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+          {t('auth.signInTitle')}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <Link
-            to="/signup"
-            className="font-medium text-primary-600 hover:text-primary-500"
-          >
-            create a new account
+          {t('common.or')}{' '}
+          <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-500">
+            {t('auth.dontHaveAccount')}
           </Link>
         </p>
       </motion.div>
@@ -78,7 +77,7 @@ const LoginPage = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                {t('auth.email')}
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -93,14 +92,14 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Enter your email"
+                  placeholder={t('auth.enterEmail')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                {t('auth.password')}
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -115,7 +114,7 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Enter your password"
+                  placeholder={t('auth.enterPassword')}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button
@@ -138,16 +137,13 @@ const LoginPage = () => {
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Remember me
+                  {t('auth.rememberMe')}
                 </label>
               </div>
 
               <div className="text-sm">
-                <Link
-                  to="/forgot-password"
-                  className="font-medium text-primary-600 hover:text-primary-500"
-                >
-                  Forgot your password?
+                <Link to="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
             </div>
@@ -158,7 +154,7 @@ const LoginPage = () => {
                 disabled={loading}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? t('common.loading') : t('auth.signIn')}
               </button>
             </div>
           </form>
