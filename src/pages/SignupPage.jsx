@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiCheckCircle } = FiIcons;
+const { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiCheckCircle, FiAlertCircle } = FiIcons;
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -19,52 +19,88 @@ const SignupPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
+
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear errors when user types
+    if (error) setError('');
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    if (!formData.email.includes('@')) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      setLoading(false);
-      return;
-    }
+    setDebugInfo('Starting registration...');
 
     try {
+      console.log('🚀 Attempting to register:', formData.email);
+      setDebugInfo('Connecting to Supabase...');
+
       const result = await signup(formData.email, formData.password, formData.name);
       
+      console.log('📋 Registration result:', result);
+      setDebugInfo('Registration request sent');
+
       if (result.error) {
         setError(result.error);
+        setDebugInfo(`Error: ${result.error}`);
       } else if (result.message) {
         // Email verification required
         setSuccess(result.message);
+        setDebugInfo('Check your email for verification');
       } else {
         // Direct login (email confirmation disabled)
-        navigate('/dashboard');
+        setSuccess('Account created successfully!');
+        setDebugInfo('Redirecting to dashboard...');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000);
       }
     } catch (err) {
+      console.error('❌ Registration failed:', err);
       setError('Failed to create account. Please try again.');
+      setDebugInfo(`Failed: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   // Show success message if email verification is required
-  if (success) {
+  if (success && success.includes('email')) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <motion.div
@@ -81,13 +117,12 @@ const SignupPage = () => {
               Check Your Email
             </h2>
             <p className="text-gray-600 mb-6">
-              We've sent a verification link to <strong>{formData.email}</strong>.
-              Please check your email and click the link to verify your account.
+              We've sent a verification link to <strong>{formData.email}</strong>. Please check your email and click the link to verify your account.
             </p>
             <div className="space-y-4">
               <p className="text-sm text-gray-500">
                 Didn't receive the email? Check your spam folder or{' '}
-                <button 
+                <button
                   onClick={() => setSuccess('')}
                   className="text-primary-600 hover:text-primary-500 font-medium"
                 >
@@ -138,10 +173,26 @@ const SignupPage = () => {
         className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
       >
         <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
+          {/* Debug Info (remove in production) */}
+          {process.env.NODE_ENV === 'development' && debugInfo && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex items-center">
+                <SafeIcon icon={FiAlertCircle} className="w-4 h-4 text-blue-600 mr-2" />
+                <span className="text-sm text-blue-800">{debugInfo}</span>
+              </div>
+            </div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
                 {error}
+              </div>
+            )}
+
+            {success && !success.includes('email') && (
+              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md">
+                {success}
               </div>
             )}
 
@@ -206,7 +257,7 @@ const SignupPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 6 characters)"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button
@@ -277,7 +328,14 @@ const SignupPage = () => {
                 disabled={loading}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating account...' : 'Create account'}
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating account...
+                  </>
+                ) : (
+                  'Create account'
+                )}
               </button>
             </div>
           </form>

@@ -20,15 +20,13 @@ export const AuthProvider = ({ children }) => {
     // Get initial session
     getInitialSession();
 
-    // Listen for auth changes including email verification
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth event:', event, session?.user?.email);
         
         if (session?.user) {
           setUser(session.user);
-          
-          // Create or load user profile
           await handleUserProfile(session.user, event);
         } else {
           setUser(null);
@@ -43,7 +41,13 @@ export const AuthProvider = ({ children }) => {
 
   const getInitialSession = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting session:', error);
+        setLoading(false);
+        return;
+      }
+      
       if (session?.user) {
         setUser(session.user);
         await handleUserProfile(session.user, 'INITIAL_SESSION');
@@ -142,55 +146,103 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (email, password, name) => {
     try {
-      console.log('Starting signup for:', email);
+      console.log('🚀 Starting signup for:', email);
       
+      // Test Supabase connection first
+      const { data: testData, error: testError } = await supabase.from('user_profiles').select('count').limit(1);
+      if (testError) {
+        console.error('❌ Supabase connection test failed:', testError);
+        throw new Error('Database connection failed. Please check your internet connection.');
+      }
+      console.log('✅ Supabase connection test passed');
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim().toLowerCase(),
         password,
         options: {
           data: {
-            name: name
+            name: name?.trim() || email.split('@')[0]
           }
         }
       });
 
+      console.log('📧 Signup response:', { data, error });
+
       if (error) {
-        console.error('Signup error:', error);
-        throw error;
+        console.error('❌ Signup error:', error);
+        
+        // Handle specific error cases
+        if (error.message.includes('email')) {
+          throw new Error('Please enter a valid email address');
+        }
+        if (error.message.includes('password')) {
+          throw new Error('Password must be at least 6 characters long');
+        }
+        if (error.message.includes('already registered')) {
+          throw new Error('An account with this email already exists');
+        }
+        
+        throw new Error(error.message || 'Failed to create account');
       }
 
-      console.log('Signup successful:', data);
+      if (data.user) {
+        console.log('✅ User created successfully:', data.user.id);
+        
+        // Check if email confirmation is required
+        if (data.user && !data.session) {
+          console.log('📬 Email confirmation required');
+          return {
+            user: data.user,
+            error: null,
+            message: 'Please check your email for verification link'
+          };
+        } else {
+          console.log('🎉 User logged in immediately');
+          return {
+            user: data.user,
+            error: null,
+            message: null
+          };
+        }
+      } else {
+        throw new Error('Failed to create user account');
+      }
 
-      // Return success message for email verification flow
-      return {
-        user: data.user,
-        error: null,
-        message: data.user && !data.session ? 'Please check your email for verification link' : null
-      };
     } catch (error) {
-      console.error('Signup error:', error);
-      return { user: null, error: error.message };
+      console.error('❌ Signup process failed:', error);
+      return { 
+        user: null, 
+        error: error.message || 'Registration failed. Please try again.' 
+      };
     }
   };
 
   const signIn = async (email, password) => {
     try {
-      console.log('Starting signin for:', email);
+      console.log('🔑 Starting signin for:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim().toLowerCase(),
         password
       });
 
       if (error) {
-        console.error('Login error:', error);
-        throw error;
+        console.error('❌ Login error:', error);
+        
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password');
+        }
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Please check your email and click the verification link');
+        }
+        
+        throw new Error(error.message);
       }
 
-      console.log('Login successful:', data.user?.email);
+      console.log('✅ Login successful:', data.user?.email);
       return { user: data.user, error: null };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login process failed:', error);
       return { user: null, error: error.message };
     }
   };

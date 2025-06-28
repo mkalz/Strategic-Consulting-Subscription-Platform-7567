@@ -15,6 +15,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 })
 
+// Test the connection
+console.log('Supabase client initialized:', {
+  url: supabaseUrl,
+  keyLength: supabaseAnonKey.length,
+  configured: !!supabaseUrl && !!supabaseAnonKey
+})
+
 // Database helper functions
 export const handleSupabaseError = (error) => {
   console.error('Supabase error:', error)
