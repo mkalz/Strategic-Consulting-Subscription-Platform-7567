@@ -93,7 +93,6 @@ export const AuthProvider = ({ children }) => {
       // If no profile exists and this is a new signup, create one
       if (fetchError?.code === 'PGRST116' || event === 'SIGNED_UP') {
         console.log('🆕 Creating new user profile...');
-        
         const profileData = {
           id: authUser.id,
           email: authUser.email,
@@ -207,7 +206,6 @@ export const AuthProvider = ({ children }) => {
 
       if (error) {
         console.error('❌ Signup error:', error);
-        
         // Handle specific Supabase error cases
         if (error.message.includes('already registered')) {
           throw new Error('An account with this email already exists. Please sign in instead.');
@@ -221,7 +219,6 @@ export const AuthProvider = ({ children }) => {
         if (error.message.includes('Invalid email')) {
           throw new Error('Please enter a valid email address');
         }
-        
         throw new Error(error.message || 'Failed to create account');
       }
 
@@ -263,7 +260,6 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     try {
       console.log('🔑 Starting signin for:', email);
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password
@@ -271,14 +267,12 @@ export const AuthProvider = ({ children }) => {
 
       if (error) {
         console.error('❌ Login error:', error);
-        
         if (error.message.includes('Invalid login credentials')) {
           throw new Error('Invalid email or password');
         }
         if (error.message.includes('Email not confirmed')) {
           throw new Error('Please check your email and click the verification link');
         }
-        
         throw new Error(error.message);
       }
 

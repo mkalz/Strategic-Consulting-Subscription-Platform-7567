@@ -14,7 +14,8 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          ui: ['framer-motion', 'react-icons']
+          ui: ['framer-motion', 'react-icons'],
+          supabase: ['@supabase/supabase-js']
         }
       }
     }
@@ -28,7 +29,14 @@ export default defineConfig({
     host: true
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'react-icons']
+    include: [
+      'react', 
+      'react-dom', 
+      'react-router-dom', 
+      'framer-motion', 
+      'react-icons',
+      '@supabase/supabase-js'
+    ]
   },
   define: {
     global: 'globalThis',

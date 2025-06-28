@@ -1,5 +1,5 @@
 {
-  "name": "saas-prebuilt-components",
+  "name": "gcm-strategymap",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -19,7 +19,8 @@
     "recharts": "^2.12.7",
     "react-hook-form": "^7.53.0",
     "react-hot-toast": "^2.4.1",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
