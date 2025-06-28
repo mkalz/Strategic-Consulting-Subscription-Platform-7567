@@ -25,7 +25,7 @@ const translations = {
       signOut: 'Sign Out',
       adminPanel: 'Admin Panel'
     },
-    
+
     // Common UI elements
     common: {
       save: 'Save',
@@ -53,7 +53,7 @@ const translations = {
       optional: 'Optional',
       language: 'Language'
     },
-    
+
     // Homepage
     home: {
       heroTitle: 'Strategic Consulting',
@@ -94,7 +94,94 @@ const translations = {
         }
       }
     },
-    
+
+    // Pricing
+    pricing: {
+      title: 'Choose Your Plan',
+      subtitle: 'Start with a 14-day free trial. No credit card required.',
+      plans: {
+        starter: {
+          name: 'Starter',
+          price: '$29',
+          period: '/month',
+          description: 'Perfect for small teams and individual consultants',
+          cta: 'Get Started',
+          features: {
+            projects: 'Up to 3 projects',
+            participants: 'Up to 25 participants',
+            mapping: 'Basic concept mapping',
+            reporting: 'Standard reporting',
+            support: 'Email support',
+            export: 'Data export (CSV)',
+            analytics: 'Advanced analytics',
+            branding: 'Custom branding',
+            api: 'API access',
+            priority: 'Priority support'
+          }
+        },
+        professional: {
+          name: 'Professional',
+          price: '$79',
+          period: '/month',
+          description: 'For growing consulting practices and larger teams',
+          cta: 'Start Free Trial',
+          features: {
+            projects: 'Up to 10 projects',
+            participants: 'Up to 100 participants',
+            mapping: 'Advanced concept mapping',
+            reporting: 'Advanced analytics & reporting',
+            support: 'Priority support',
+            export: 'All export formats',
+            branding: 'Custom branding',
+            collaboration: 'Team collaboration',
+            api: 'API access',
+            whitelabel: 'White-label options'
+          }
+        },
+        enterprise: {
+          name: 'Enterprise',
+          price: 'Custom',
+          period: '',
+          description: 'For large organizations with specific requirements',
+          cta: 'Contact Sales',
+          features: {
+            projects: 'Unlimited projects',
+            participants: 'Unlimited participants',
+            platform: 'Full platform access',
+            dashboards: 'Custom analytics dashboards',
+            manager: 'Dedicated success manager',
+            export: 'All export formats',
+            whitelabel: 'Full white-label',
+            api: 'API access',
+            deployment: 'On-premise deployment',
+            integrations: 'Custom integrations'
+          }
+        }
+      },
+      mostPopular: 'Most Popular',
+      faq: {
+        title: 'Frequently Asked Questions',
+        questions: {
+          trial: {
+            question: "What's included in the free trial?",
+            answer: 'The 14-day free trial includes full access to all Professional plan features with no limitations or restrictions.'
+          },
+          changePlans: {
+            question: 'Can I change plans later?',
+            answer: 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.'
+          },
+          billing: {
+            question: 'How does billing work?',
+            answer: 'All plans are billed monthly or annually. You can cancel anytime with no long-term commitments.'
+          },
+          custom: {
+            question: 'Do you offer custom solutions?',
+            answer: 'Yes, our Enterprise plan includes custom features, integrations, and dedicated support for large organizations.'
+          }
+        }
+      }
+    },
+
     // Authentication
     auth: {
       signInTitle: 'Sign in to your account',
@@ -119,7 +206,7 @@ const translations = {
       createPassword: 'Create a password',
       confirmYourPassword: 'Confirm your password'
     },
-    
+
     // Dashboard
     dashboard: {
       welcomeBack: 'Welcome back',
@@ -141,7 +228,7 @@ const translations = {
       viewUsage: 'View Usage',
       enableAI: 'Enable AI'
     },
-    
+
     // Projects
     projects: {
       createNewProject: 'Create New Project',
@@ -161,7 +248,7 @@ const translations = {
       exportData: 'Export Data',
       backToDashboard: 'Back to Dashboard'
     },
-    
+
     // GCM Process
     gcm: {
       phases: {
@@ -240,7 +327,7 @@ const translations = {
         riskConsiderations: 'Risk Considerations'
       }
     },
-    
+
     // Error messages
     errors: {
       invalidCredentials: 'Invalid email or password',
@@ -253,7 +340,7 @@ const translations = {
       invalidEmail: 'Please enter a valid email address'
     }
   },
-  
+
   de: {
     // Navigation
     nav: {
@@ -267,7 +354,7 @@ const translations = {
       signOut: 'Abmelden',
       adminPanel: 'Admin-Panel'
     },
-    
+
     // Common UI elements
     common: {
       save: 'Speichern',
@@ -295,7 +382,7 @@ const translations = {
       optional: 'Optional',
       language: 'Sprache'
     },
-    
+
     // Homepage
     home: {
       heroTitle: 'Strategische Beratung',
@@ -336,7 +423,94 @@ const translations = {
         }
       }
     },
-    
+
+    // Pricing
+    pricing: {
+      title: 'Wählen Sie Ihren Plan',
+      subtitle: 'Starten Sie mit einer 14-tägigen kostenlosen Testversion. Keine Kreditkarte erforderlich.',
+      plans: {
+        starter: {
+          name: 'Starter',
+          price: '29€',
+          period: '/Monat',
+          description: 'Perfekt für kleine Teams und einzelne Berater',
+          cta: 'Loslegen',
+          features: {
+            projects: 'Bis zu 3 Projekte',
+            participants: 'Bis zu 25 Teilnehmer',
+            mapping: 'Basis Concept Mapping',
+            reporting: 'Standard Berichte',
+            support: 'E-Mail Support',
+            export: 'Datenexport (CSV)',
+            analytics: 'Erweiterte Analytik',
+            branding: 'Custom Branding',
+            api: 'API-Zugang',
+            priority: 'Priority Support'
+          }
+        },
+        professional: {
+          name: 'Professional',
+          price: '79€',
+          period: '/Monat',
+          description: 'Für wachsende Beratungspraxen und größere Teams',
+          cta: 'Kostenlose Testversion starten',
+          features: {
+            projects: 'Bis zu 10 Projekte',
+            participants: 'Bis zu 100 Teilnehmer',
+            mapping: 'Erweiterte Concept Mapping',
+            reporting: 'Erweiterte Analytik & Berichte',
+            support: 'Priority Support',
+            export: 'Alle Export-Formate',
+            branding: 'Custom Branding',
+            collaboration: 'Team-Zusammenarbeit',
+            api: 'API-Zugang',
+            whitelabel: 'White-Label Optionen'
+          }
+        },
+        enterprise: {
+          name: 'Enterprise',
+          price: 'Individuell',
+          period: '',
+          description: 'Für große Organisationen mit spezifischen Anforderungen',
+          cta: 'Vertrieb Kontaktieren',
+          features: {
+            projects: 'Unbegrenzte Projekte',
+            participants: 'Unbegrenzte Teilnehmer',
+            platform: 'Vollständiger Plattform-Zugang',
+            dashboards: 'Individuelle Analytik-Dashboards',
+            manager: 'Dedizierter Success Manager',
+            export: 'Alle Export-Formate',
+            whitelabel: 'Vollständiges White-Label',
+            api: 'API-Zugang',
+            deployment: 'On-Premise Bereitstellung',
+            integrations: 'Individuelle Integrationen'
+          }
+        }
+      },
+      mostPopular: 'Am Beliebtesten',
+      faq: {
+        title: 'Häufig gestellte Fragen',
+        questions: {
+          trial: {
+            question: 'Was ist in der kostenlosen Testversion enthalten?',
+            answer: 'Die 14-tägige kostenlose Testversion beinhaltet vollen Zugang zu allen Professional Plan Features ohne Einschränkungen.'
+          },
+          changePlans: {
+            question: 'Kann ich den Plan später ändern?',
+            answer: 'Ja, Sie können Ihren Plan jederzeit upgraden oder downgraden. Änderungen werden sofort wirksam.'
+          },
+          billing: {
+            question: 'Wie funktioniert die Abrechnung?',
+            answer: 'Alle Pläne werden monatlich oder jährlich abgerechnet. Sie können jederzeit kündigen ohne langfristige Verpflichtungen.'
+          },
+          custom: {
+            question: 'Bieten Sie individuelle Lösungen an?',
+            answer: 'Ja, unser Enterprise Plan beinhaltet individuelle Features, Integrationen und dedizierten Support für große Organisationen.'
+          }
+        }
+      }
+    },
+
     // Authentication
     auth: {
       signInTitle: 'Bei Ihrem Konto anmelden',
@@ -361,7 +535,7 @@ const translations = {
       createPassword: 'Passwort erstellen',
       confirmYourPassword: 'Passwort bestätigen'
     },
-    
+
     // Dashboard
     dashboard: {
       welcomeBack: 'Willkommen zurück',
@@ -383,7 +557,7 @@ const translations = {
       viewUsage: 'Nutzung anzeigen',
       enableAI: 'KI aktivieren'
     },
-    
+
     // Projects
     projects: {
       createNewProject: 'Neues Projekt erstellen',
@@ -403,7 +577,7 @@ const translations = {
       exportData: 'Daten exportieren',
       backToDashboard: 'Zurück zum Dashboard'
     },
-    
+
     // GCM Process
     gcm: {
       phases: {
@@ -482,7 +656,7 @@ const translations = {
         riskConsiderations: 'Risiko-Überlegungen'
       }
     },
-    
+
     // Error messages
     errors: {
       invalidCredentials: 'Ungültige E-Mail oder Passwort',

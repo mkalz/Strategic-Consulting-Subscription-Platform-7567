@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
@@ -9,67 +10,90 @@ const { FiCheck, FiX } = FiIcons;
 
 const PricingPage = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const plans = [
     {
-      name: 'Starter',
-      price: '$29',
-      period: '/month',
-      description: 'Perfect for small teams and individual consultants',
+      id: 'starter',
+      name: t('pricing.plans.starter.name'),
+      price: t('pricing.plans.starter.price'),
+      period: t('pricing.plans.starter.period'),
+      description: t('pricing.plans.starter.description'),
       features: [
-        { name: 'Up to 3 projects', included: true },
-        { name: 'Up to 25 participants', included: true },
-        { name: 'Basic concept mapping', included: true },
-        { name: 'Standard reporting', included: true },
-        { name: 'Email support', included: true },
-        { name: 'Data export (CSV)', included: true },
-        { name: 'Advanced analytics', included: false },
-        { name: 'Custom branding', included: false },
-        { name: 'API access', included: false },
-        { name: 'Priority support', included: false }
+        { name: t('pricing.plans.starter.features.projects'), included: true },
+        { name: t('pricing.plans.starter.features.participants'), included: true },
+        { name: t('pricing.plans.starter.features.mapping'), included: true },
+        { name: t('pricing.plans.starter.features.reporting'), included: true },
+        { name: t('pricing.plans.starter.features.support'), included: true },
+        { name: t('pricing.plans.starter.features.export'), included: true },
+        { name: t('pricing.plans.starter.features.analytics'), included: false },
+        { name: t('pricing.plans.starter.features.branding'), included: false },
+        { name: t('pricing.plans.starter.features.api'), included: false },
+        { name: t('pricing.plans.starter.features.priority'), included: false }
       ],
-      cta: 'Get Started',
+      cta: t('pricing.plans.starter.cta'),
       popular: false
     },
     {
-      name: 'Professional',
-      price: '$79',
-      period: '/month',
-      description: 'For growing consulting practices and larger teams',
+      id: 'professional',
+      name: t('pricing.plans.professional.name'),
+      price: t('pricing.plans.professional.price'),
+      period: t('pricing.plans.professional.period'),
+      description: t('pricing.plans.professional.description'),
       features: [
-        { name: 'Up to 10 projects', included: true },
-        { name: 'Up to 100 participants', included: true },
-        { name: 'Advanced concept mapping', included: true },
-        { name: 'Advanced analytics & reporting', included: true },
-        { name: 'Priority support', included: true },
-        { name: 'All export formats', included: true },
-        { name: 'Custom branding', included: true },
-        { name: 'Team collaboration', included: true },
-        { name: 'API access', included: false },
-        { name: 'White-label options', included: false }
+        { name: t('pricing.plans.professional.features.projects'), included: true },
+        { name: t('pricing.plans.professional.features.participants'), included: true },
+        { name: t('pricing.plans.professional.features.mapping'), included: true },
+        { name: t('pricing.plans.professional.features.reporting'), included: true },
+        { name: t('pricing.plans.professional.features.support'), included: true },
+        { name: t('pricing.plans.professional.features.export'), included: true },
+        { name: t('pricing.plans.professional.features.branding'), included: true },
+        { name: t('pricing.plans.professional.features.collaboration'), included: true },
+        { name: t('pricing.plans.professional.features.api'), included: false },
+        { name: t('pricing.plans.professional.features.whitelabel'), included: false }
       ],
-      cta: 'Start Free Trial',
+      cta: t('pricing.plans.professional.cta'),
       popular: true
     },
     {
-      name: 'Enterprise',
-      price: 'Custom',
-      period: '',
-      description: 'For large organizations with specific requirements',
+      id: 'enterprise',
+      name: t('pricing.plans.enterprise.name'),
+      price: t('pricing.plans.enterprise.price'),
+      period: t('pricing.plans.enterprise.period'),
+      description: t('pricing.plans.enterprise.description'),
       features: [
-        { name: 'Unlimited projects', included: true },
-        { name: 'Unlimited participants', included: true },
-        { name: 'Full platform access', included: true },
-        { name: 'Custom analytics dashboards', included: true },
-        { name: 'Dedicated success manager', included: true },
-        { name: 'All export formats', included: true },
-        { name: 'Full white-label', included: true },
-        { name: 'API access', included: true },
-        { name: 'On-premise deployment', included: true },
-        { name: 'Custom integrations', included: true }
+        { name: t('pricing.plans.enterprise.features.projects'), included: true },
+        { name: t('pricing.plans.enterprise.features.participants'), included: true },
+        { name: t('pricing.plans.enterprise.features.platform'), included: true },
+        { name: t('pricing.plans.enterprise.features.dashboards'), included: true },
+        { name: t('pricing.plans.enterprise.features.manager'), included: true },
+        { name: t('pricing.plans.enterprise.features.export'), included: true },
+        { name: t('pricing.plans.enterprise.features.whitelabel'), included: true },
+        { name: t('pricing.plans.enterprise.features.api'), included: true },
+        { name: t('pricing.plans.enterprise.features.deployment'), included: true },
+        { name: t('pricing.plans.enterprise.features.integrations'), included: true }
       ],
-      cta: 'Contact Sales',
+      cta: t('pricing.plans.enterprise.cta'),
       popular: false
+    }
+  ];
+
+  const faqItems = [
+    {
+      question: t('pricing.faq.questions.trial.question'),
+      answer: t('pricing.faq.questions.trial.answer')
+    },
+    {
+      question: t('pricing.faq.questions.changePlans.question'),
+      answer: t('pricing.faq.questions.changePlans.answer')
+    },
+    {
+      question: t('pricing.faq.questions.billing.question'),
+      answer: t('pricing.faq.questions.billing.answer')
+    },
+    {
+      question: t('pricing.faq.questions.custom.question'),
+      answer: t('pricing.faq.questions.custom.answer')
     }
   ];
 
@@ -83,28 +107,30 @@ const PricingPage = () => {
           className="text-center mb-16"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Choose Your Plan
+            {t('pricing.title')}
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Start with a 14-day free trial. No credit card required.
+            {t('pricing.subtitle')}
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {plans.map((plan, index) => (
             <motion.div
-              key={plan.name}
+              key={plan.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               className={`bg-white rounded-lg shadow-sm overflow-hidden relative ${
-                plan.popular ? 'border-2 border-primary-500 transform scale-105' : 'border border-gray-200'
+                plan.popular
+                  ? 'border-2 border-primary-500 transform scale-105'
+                  : 'border border-gray-200'
               }`}
             >
               {plan.popular && (
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
+                    {t('pricing.mostPopular')}
                   </span>
                 </div>
               )}
@@ -157,49 +183,20 @@ const PricingPage = () => {
           className="bg-white rounded-lg shadow-sm p-8"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            Frequently Asked Questions
+            {t('pricing.faq.title')}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                What's included in the free trial?
-              </h3>
-              <p className="text-gray-600">
-                The 14-day free trial includes full access to all Professional plan features 
-                with no limitations or restrictions.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Can I change plans later?
-              </h3>
-              <p className="text-gray-600">
-                Yes, you can upgrade or downgrade your plan at any time. 
-                Changes take effect immediately.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                How does billing work?
-              </h3>
-              <p className="text-gray-600">
-                All plans are billed monthly or annually. You can cancel anytime 
-                with no long-term commitments.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Do you offer custom solutions?
-              </h3>
-              <p className="text-gray-600">
-                Yes, our Enterprise plan includes custom features, integrations, 
-                and dedicated support for large organizations.
-              </p>
-            </div>
+            {faqItems.map((item, index) => (
+              <div key={index}>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {item.question}
+                </h3>
+                <p className="text-gray-600">
+                  {item.answer}
+                </p>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>
