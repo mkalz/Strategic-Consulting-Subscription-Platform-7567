@@ -29,7 +29,6 @@ import AdminPage from './pages/AdminPage';
 
 // Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
-
 import './App.css';
 
 function App() {

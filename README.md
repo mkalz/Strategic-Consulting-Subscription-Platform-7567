@@ -6,7 +6,7 @@ A professional Group Concept Mapping platform for strategic consulting and organ
 
 Group Concept Mapping (GCM) is a proven methodology that combines:
 - **Collaborative brainstorming** for idea generation
-- **Structured organization** of concepts and themes
+- **Structured organization** of concepts and themes  
 - **Quantitative analysis** through rating and prioritization
 - **Visual representation** of complex strategic relationships
 
